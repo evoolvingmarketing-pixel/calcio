@@ -1,407 +1,898 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Slot Machine – Demo</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NextScore — Match Center (Light)</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;800;900&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com"></script>
 
-<style>
-  body{
-    margin:0;
-    font-family:Roboto,system-ui;
-    background:#05050a;
-  }
+  <style>
+    :root{
+      --bg:#ffffff;
+      --panel:#ffffff;
+      --text:#0f172a;
+      --muted:#64748b;
+      --border:rgba(2,6,23,.10);
+      --shadow: 0 16px 40px rgba(2,6,23,.08);
+      --accent:#f59e0b;
+      --accent2:#fb923c;
+      --soft:#fff7ed;
+    }
+    html,body{ font-family:Roboto,system-ui,-apple-system,"Segoe UI",Arial,sans-serif; background:var(--bg); color:var(--text); }
+    .cardShadow{ box-shadow: var(--shadow); }
+    .chip{
+      font-size:12px; line-height:1;
+      padding:6px 10px; border-radius:999px;
+      border:1px solid var(--border);
+      background: #fff;
+      color:#0f172a;
+      white-space:nowrap;
+    }
+    .btn{
+      border-radius:14px;
+      padding:10px 14px;
+      font-weight:800;
+      border:1px solid var(--border);
+      background:#fff;
+      transition: transform .08s ease, box-shadow .12s ease;
+    }
+    .btn:hover{ transform: translateY(-1px); box-shadow:0 10px 24px rgba(2,6,23,.10); }
+    .btnPrimary{
+      border:1px solid rgba(245,158,11,.35);
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      color:#111827;
+    }
+    .btnPrimary:hover{ box-shadow:0 16px 40px rgba(245,158,11,.22); }
+    .input{
+      width:100%;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:#fff;
+      padding:10px 12px;
+      color:#0f172a;
+      outline:none;
+    }
+    .input:focus{
+      border-color: rgba(245,158,11,.55);
+      box-shadow: 0 0 0 4px rgba(245,158,11,.14);
+    }
 
-  .reel{
-    width:92px;
-    height:92px;
-    border-radius:16px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:50px;
-    background:
-      radial-gradient(26px 22px at 30% 22%, rgba(255,255,255,.18), transparent 65%),
-      linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.35)),
-      #111;
-    border:1px solid rgba(255,255,255,.10);
-    box-shadow:
-      inset 0 0 16px rgba(0,0,0,.90),
-      0 10px 22px rgba(0,0,0,.45);
-  }
+    /* Cards */
+    .teamRow{
+      display:flex; align-items:center; gap:10px;
+      margin-top:10px;
+      padding:10px 12px;
+      border:1px solid var(--border);
+      border-radius:16px;
+      background:#fff;
+    }
+    .tlogo{
+      width:34px; height:34px;
+      border-radius:999px;
+      border:1px solid rgba(2,6,23,.10);
+      object-fit:contain;
+      background:#fff;
+      flex:0 0 auto;
+    }
+    .vsPill{
+      font-weight:900;
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:#fff7ed;
+      color:#7c2d12;
+    }
 
-  @media(max-width:520px){
-    .reel{width:84px;height:84px;font-size:46px}
-  }
-</style>
+    /* Modal */
+    .modalOverlay{
+      position:fixed; inset:0;
+      background: rgba(2,6,23,.45);
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      padding:14px;
+      z-index:9999;
+    }
+    .modalOverlay.show{ display:flex; }
+    .modal{
+      width:100%;
+      max-width:980px;
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:22px;
+      box-shadow: 0 24px 70px rgba(2,6,23,.22);
+      overflow:hidden;
+      max-height: 92vh;
+      display:flex;
+      flex-direction:column;
+    }
+    .modalHeader{
+      display:flex; align-items:flex-start; justify-content:space-between;
+      padding:14px 16px;
+      border-bottom:1px solid var(--border);
+      background: linear-gradient(180deg, #ffffff 0%, #fffaf2 100%);
+      gap:14px;
+    }
+    .avatar{
+      width:34px; height:34px;
+      border-radius:999px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      background: #fff7ed;
+      border:1px solid rgba(245,158,11,.30);
+      font-size:18px;
+      flex:0 0 auto;
+    }
+    .modalBody{
+      padding:14px 14px 0 14px;
+      overflow:auto;
+    }
+    .chatFeed{
+      padding:4px 2px 12px 2px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .bubbleRow{
+      display:flex;
+      gap:10px;
+      align-items:flex-end;
+    }
+    .bubble{
+      max-width: 820px;
+      border-radius:18px;
+      padding:10px 12px;
+      border:1px solid var(--border);
+      background:#fff;
+      line-height:1.35;
+      font-size:14px;
+      white-space:pre-wrap;
+    }
+    .bubbleUser{
+      margin-left:auto;
+      background:#111827;
+      color:#fff;
+      border:1px solid rgba(2,6,23,.18);
+    }
+    .bubbleBetty{
+      background:#fff;
+    }
+    .miniName{
+      font-size:12px;
+      color:#0f172a;
+      font-weight:900;
+      margin-bottom:2px;
+    }
+    .microTabs{
+      display:flex;
+      gap:8px;
+      padding:10px 14px 0 14px;
+      flex-wrap:wrap;
+    }
+    .tabBtn{
+      border-radius:999px;
+      padding:8px 12px;
+      font-weight:900;
+      font-size:12px;
+      border:1px solid var(--border);
+      background:#fff;
+      color:#0f172a;
+    }
+    .tabBtn.active{
+      border-color: rgba(245,158,11,.50);
+      background: #fff7ed;
+    }
+    .modalFooter{
+      border-top:1px solid var(--border);
+      padding:10px 12px;
+      display:flex;
+      gap:10px;
+      align-items:flex-end;
+      background:#fff;
+    }
+    .textarea{
+      width:100%;
+      min-height:44px;
+      max-height:120px;
+      resize:none;
+      border-radius:16px;
+      border:1px solid var(--border);
+      padding:10px 12px;
+      outline:none;
+      font-family:Roboto,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+    }
+    .textarea:focus{
+      border-color: rgba(245,158,11,.55);
+      box-shadow: 0 0 0 4px rgba(245,158,11,.14);
+    }
+
+    /* Chat header teams */
+    .chatTeams{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-top:6px;
+      flex-wrap:wrap;
+    }
+    .chatTeamName{ font-weight:900; font-size:13px; color:#0f172a; }
+    .chatMeta{ font-size:12px; color:#64748b; margin-top:2px; }
+
+    @media (min-width: 900px){
+      .modalOverlay{ align-items:center; }
+      .modal{ max-height: 86vh; }
+      .modalHeader{ align-items:center; }
+    }
+  </style>
 </head>
 
 <body>
+  <div class="max-w-6xl mx-auto px-4 py-6 md:py-8">
+    <header class="flex items-start md:items-center justify-between gap-4 mb-6">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">
+          NextScore <span class="text-amber-600">Match Center</span>
+        </h1>
+        <p class="text-sm md:text-base text-slate-600 mt-1">
+          Seleziona un match e leggi l’analisi di <strong>Betty</strong> (con contesto: forma, classifica, marcatori, assenze).
+        </p>
+      </div>
 
-<div id="slot-app" style="
-  max-width:560px;
-  margin:32px auto;
-  padding:22px;
-  border-radius:26px;
-  background:
-    radial-gradient(900px 420px at 30% 0%, rgba(255,200,90,.14), transparent 55%),
-    radial-gradient(700px 360px at 80% 20%, rgba(140,110,255,.14), transparent 55%),
-    linear-gradient(135deg,#0b0b10,#161622);
-  color:#fff;
-  box-shadow:0 40px 120px rgba(0,0,0,.62);
-  position:relative;
-  overflow:hidden;
-">
+      <div class="text-xs text-slate-500 text-right">
+        <div id="rateInfo">rate: …</div>
+        <div id="statusInfo">stato: pronto</div>
+      </div>
+    </header>
 
-  <!-- TITOLO -->
-  <h1 style="
-    text-align:center;
-    margin:0 0 6px;
-    font-size:30px;
-    font-weight:900;
-  ">🎰 Slot Machine Demo</h1>
+    <section class="bg-white rounded-2xl border cardShadow" style="border-color:var(--border);">
+      <div class="p-4 md:p-5">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <div class="md:col-span-2">
+            <label class="block text-sm font-bold text-slate-800 mb-1">Sport / Campionato</label>
+            <select id="sport" class="input">
+              <optgroup label="Calcio — Leghe">
+                <option value="soccer_italy_serie_a">Serie A</option>
+                <option value="soccer_epl">Premier League</option>
+                <option value="soccer_spain_la_liga">La Liga</option>
+                <option value="soccer_germany_bundesliga">Bundesliga</option>
+                <option value="soccer_france_ligue_one">Ligue 1</option>
+              </optgroup>
 
-  <!-- DESCRIZIONE -->
-  <p style="
-    text-align:center;
-    font-size:14px;
-    line-height:1.5;
-    opacity:.85;
-    margin:0 0 16px;
-  ">
-    Scegli la puntata e premi <b>GIRA</b>.<br>
-    Abbina 2 simboli per vincere, 3 simboli per il jackpot.
-  </p>
+              <optgroup label="Calcio — Coppe Europee">
+                <option value="soccer_uefa_champs_league">UEFA Champions League</option>
+                <option value="soccer_uefa_europa_league">UEFA Europa League</option>
+                <option value="soccer_uefa_europa_conference_league">UEFA Conference League</option>
+                <option value="soccer_uefa_nations_league">UEFA Nations League</option>
+              </optgroup>
 
-  <!-- SALDO -->
-  <div id="balance" style="
-    text-align:center;
-    font-size:18px;
-    font-weight:900;
-    margin-bottom:16px;
-  ">Saldo: € 1.000</div>
+              <optgroup label="Calcio — Nazionali / Tornei">
+                <option value="soccer_fifa_world_cup">FIFA World Cup</option>
+                <option value="soccer_fifa_world_cup_qualifiers_europe">World Cup Qualifiers (EU)</option>
+                <option value="soccer_uefa_european_championship">EURO</option>
+                <option value="soccer_uefa_european_championship_qualifiers">EURO Qualifiers</option>
+              </optgroup>
 
-  <!-- SLOT -->
-  <div style="
-    display:flex;
-    justify-content:center;
-    gap:14px;
-    background:#000;
-    padding:18px;
-    border-radius:18px;
-    margin-bottom:18px;
-    box-shadow:inset 0 0 20px rgba(0,0,0,.8);
-  ">
-    <div class="reel">🍒</div>
-    <div class="reel">🍋</div>
-    <div class="reel">🔔</div>
-  </div>
+              <optgroup label="Altri Sport">
+                <option value="basketball_nba">Basket — NBA</option>
+                <option value="tennis_atp">Tennis — ATP</option>
+              </optgroup>
 
-  <!-- CONTROLLI -->
-  <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;">
-    <select id="bet" style="
-      padding:10px 14px;
-      border-radius:14px;
-      border:none;
-      font-weight:900;
-    ">
-      <option value="5">€ 5</option>
-      <option value="10" selected>€ 10</option>
-      <option value="25">€ 25</option>
-      <option value="50">€ 50</option>
-    </select>
+              <option value="custom">— Altro (custom) —</option>
+            </select>
 
-    <button id="spinBtn" style="
-      padding:14px 22px;
-      font-size:18px;
-      font-weight:900;
-      border:none;
-      border-radius:16px;
-      cursor:pointer;
-      background:linear-gradient(135deg,#f5c16c,#c79b3a);
-      color:#111;
-      box-shadow:0 18px 50px rgba(0,0,0,.45);
-    ">🎯 GIRA</button>
-  </div>
+            <input id="sportCustom" type="text" class="input mt-2 hidden" placeholder="es. soccer_uefa_champs_league" />
+            <div class="text-[12px] text-slate-500 mt-1">
+              Se non trovi una competizione: usa “custom” e incolla la sport_key.
+            </div>
+          </div>
 
-  <!-- RISULTATO -->
-  <div id="result" style="
-    margin-top:18px;
-    font-size:28px;
-    font-weight:900;
-    text-align:center;
-    display:none;
-  "></div>
+          <div>
+            <label class="block text-sm font-bold text-slate-800 mb-1">Regione</label>
+            <select id="regions" class="input">
+              <option value="eu">EU</option>
+              <option value="uk">UK</option>
+              <option value="us">US</option>
+              <option value="au">AU</option>
+            </select>
+          </div>
 
-  <!-- MINI REGOLE -->
-  <div style="
-    margin-top:16px;
-    padding:12px 14px;
-    border-radius:16px;
-    background:rgba(255,255,255,.06);
-    border:1px solid rgba(255,255,255,.12);
-    font-size:12px;
-    line-height:1.45;
-  ">
-    <b>Regole rapide:</b><br>
-    • 2 simboli uguali → <b>x2</b><br>
-    • 3 simboli uguali → <b>JACKPOT x10</b><br>
-    • Nessuna combinazione → perdi la puntata
-  </div>
-</div>
+          <div class="flex items-end gap-2">
+            <button id="refreshBtn" class="btn btnPrimary w-full">Aggiorna Match</button>
+          </div>
+        </div>
 
-<!-- POPUP OGNI 3 GIRI -->
-<div id="promoOverlay" style="
-  position:fixed;
-  inset:0;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  background:rgba(0,0,0,.6);
-  backdrop-filter:blur(2px);
-  -webkit-backdrop-filter:blur(2px);
-  z-index:999999;
-  padding:18px;
-">
-  <div style="
-    width:min(420px, 96vw);
-    border-radius:22px;
-    padding:22px;
-    background:
-      radial-gradient(700px 320px at 20% 0%, rgba(245,193,108,.14), transparent 55%),
-      radial-gradient(700px 320px at 80% 20%, rgba(140,110,255,.12), transparent 55%),
-      linear-gradient(135deg,#0b0b10,#161622);
-    color:#fff;
-    text-align:center;
-    box-shadow:0 30px 90px rgba(0,0,0,.65);
-    border:1px solid rgba(255,255,255,.12);
-  ">
-    <div style="font-size:28px;font-weight:900;margin-bottom:10px;">
-      Vuoi giocare sul serio?
+        <div class="mt-4 flex flex-wrap items-center gap-2">
+          <span class="chip" id="chipCount">match: —</span>
+          <span class="chip" id="chipMode">modalità: live</span>
+          <span class="chip">stile: light premium</span>
+          <span class="chip">AI: Betty 🧙‍♀️</span>
+          <span class="chip" id="chipCtx">context: —</span>
+        </div>
+      </div>
+    </section>
+
+    <div id="notice" class="hidden mt-4 rounded-2xl border px-4 py-3 text-sm"
+         style="border-color: rgba(245,158,11,.30); background: var(--soft); color:#7c2d12;">
     </div>
 
-    <div style="font-size:15px;opacity:.85;margin-bottom:18px;line-height:1.45;">
-      Questa è solo una demo.<br>
-      Passa al gioco reale su un sito Partner!
-    </div>
-
-    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-      <a href="https://nextscore.it/referral" style="
-        text-decoration:none;
-        padding:14px 18px;
-        border-radius:16px;
-        background:linear-gradient(135deg,#f5c16c,#c79b3a);
-        color:#111;
-        font-weight:900;
-        box-shadow:0 18px 50px rgba(0,0,0,.45);
-        display:inline-flex;
-        align-items:center;
-        gap:10px;
-      ">
-        Sì, giochiamo 🎯
-      </a>
-
-      <button id="closePopup" style="
-        padding:14px 18px;
-        border-radius:16px;
-        border:1px solid rgba(255,255,255,.2);
-        background:rgba(255,255,255,.06);
-        color:#fff;
-        font-weight:900;
-        cursor:pointer;
-      ">
-        No, continua
-      </button>
-    </div>
+    <section id="cards" class="mt-5 grid gap-4 md:grid-cols-2"></section>
   </div>
-</div>
 
-<!-- BANNER FISSO IN BASSO -->
-<div id="partnerBanner" style="
-  position:fixed;
-  left:0; right:0; bottom:0;
-  z-index:999998;
-  padding:10px 12px;
-  background:
-    radial-gradient(900px 260px at 20% 0%, rgba(245,193,108,.18), transparent 60%),
-    radial-gradient(900px 260px at 80% 10%, rgba(140,110,255,.16), transparent 60%),
-    linear-gradient(135deg,#0b0b10,#141423);
-  border-top:1px solid rgba(255,255,255,.14);
-  box-shadow:0 -18px 60px rgba(0,0,0,.45);
-">
-  <div style="
-    max-width:560px;
-    margin:0 auto;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-    flex-wrap:wrap;
-    color:#fff;
-    font-family:Roboto,system-ui;
-  ">
-    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-      <div style="
-        width:38px; height:38px;
-        border-radius:14px;
-        background:linear-gradient(135deg,#f5c16c,#c79b3a);
-        display:flex; align-items:center; justify-content:center;
-        color:#111; font-weight:900;
-        box-shadow:0 14px 40px rgba(0,0,0,.35);
-      ">★</div>
+  <!-- CHAT MODAL -->
+  <div id="modalOverlay" class="modalOverlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Chat Betty">
+      <div class="modalHeader">
+        <div class="flex items-start gap-3">
+          <div class="avatar" aria-hidden="true">🧙‍♀️</div>
+          <div>
+            <div class="text-sm font-extrabold leading-tight">Betty</div>
 
-      <div style="line-height:1.2;">
-        <div style="font-weight:900; font-size:14px;">Vuoi fare sul serio?</div>
-        <div style="font-size:12px; color:rgba(255,255,255,.82);">Gioca su un sito Partner!</div>
+            <div class="chatTeams" id="chatTeamsRow" style="display:none;">
+              <img id="chatHomeLogo" class="tlogo" alt="">
+              <div class="chatTeamName" id="chatHomeName"></div>
+              <div class="vsPill">VS</div>
+              <img id="chatAwayLogo" class="tlogo" alt="">
+              <div class="chatTeamName" id="chatAwayName"></div>
+            </div>
+
+            <div id="chatSub" class="chatMeta">Seleziona un match per iniziare</div>
+          </div>
+        </div>
+
+        <button id="closeModal" class="btn" style="padding:8px 12px;">Chiudi</button>
+      </div>
+
+      <div class="microTabs" id="tabsRow">
+        <button class="tabBtn active" data-mode="OPEN">Analisi</button>
+        <button class="tabBtn" data-mode="TOTALS">Under/Over</button>
+        <button class="tabBtn" data-mode="BTTS">Gol/NoGol</button>
+        <button class="tabBtn" data-mode="EXACT">Risultato Esatto</button>
+        <button class="tabBtn" data-mode="SCORER">Marcatore</button>
+      </div>
+
+      <div class="modalBody">
+        <div id="chatTitle" class="text-sm font-extrabold text-slate-900 mt-2 mb-2"></div>
+        <div id="chatFeed" class="chatFeed"></div>
+      </div>
+
+      <div class="modalFooter">
+        <textarea id="chatInput" class="textarea" rows="2" placeholder="Scrivi una domanda (es. 'Che partita sarà?')"></textarea>
+        <button id="sendBtn" class="btn btnPrimary" style="min-width:120px;">Invia</button>
       </div>
     </div>
-
-    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-      <a href="https://nextscore.it/referral" style="
-        text-decoration:none;
-        padding:12px 14px;
-        border-radius:14px;
-        background:linear-gradient(135deg,#f5c16c,#c79b3a);
-        color:#111;
-        font-weight:900;
-        box-shadow:0 14px 46px rgba(0,0,0,.35);
-        white-space:nowrap;
-      ">
-        Vai al Partner →
-      </a>
-
-      <button id="bannerClose" style="
-        border:1px solid rgba(255,255,255,.16);
-        background:rgba(255,255,255,.06);
-        color:#fff;
-        border-radius:14px;
-        padding:12px 12px;
-        font-weight:900;
-        cursor:pointer;
-      ">✕</button>
-    </div>
   </div>
-</div>
 
-<script>
-(() => {
-  const symbols = ["🍒","🍋","🔔","💎","⭐"];
-  const reels = document.querySelectorAll(".reel");
-  const spinBtn = document.getElementById("spinBtn");
-  const resultEl = document.getElementById("result");
-  const balanceEl = document.getElementById("balance");
-  const betSelect = document.getElementById("bet");
+  <script>
+    /* ===== CONFIG ===== */
+    const SERVICE_BASE      = "https://get-odds-299332443653.europe-west8.run.app";
+    const BETTY_CHAT_URL    = "https://betty-chat-299332443653.europe-west8.run.app";
+    const FOOTBALL_HUB_BASE = "https://football-hub-299332443653.europe-west8.run.app"; // <-- il tuo football-hub
+    const MAX_COUNT = 100;
 
-  const overlay = document.getElementById("promoOverlay");
-  const closePopup = document.getElementById("closePopup");
-
-  let balance = 1000;
-  let spinning = false;
-
-  // ✅ conta giri e mostra popup OGNI 3 GIRI
-  const SPINS_KEY = "slot_spins_v2";
-  let spins = Number(localStorage.getItem(SPINS_KEY) || "0");
-
-  // banner close persistente
-  const BANNER_KEY = "slot_banner_closed_v1";
-  const banner = document.getElementById("partnerBanner");
-  const bannerClose = document.getElementById("bannerClose");
-  if (localStorage.getItem(BANNER_KEY) === "1") banner.style.display = "none";
-  bannerClose.addEventListener("click", () => {
-    banner.style.display = "none";
-    localStorage.setItem(BANNER_KEY, "1");
-  });
-
-  function updateBalance(){
-    balanceEl.textContent = "Saldo: € " + balance.toLocaleString("it-IT");
-  }
-
-  function randomSymbol(){
-    return symbols[Math.floor(Math.random()*symbols.length)];
-  }
-
-  function openPromo(){
-    overlay.style.display = "flex";
-    document.body.style.overflow = "hidden";
-  }
-  function closePromo(){
-    overlay.style.display = "none";
-    document.body.style.overflow = "";
-  }
-
-  // chiudi popup
-  closePopup.addEventListener("click", closePromo);
-  overlay.addEventListener("click", (e)=>{ if(e.target === overlay) closePromo(); });
-  window.addEventListener("keydown", (e)=>{ if(e.key === "Escape" && overlay.style.display === "flex") closePromo(); });
-
-  function spin(){
-    if(spinning) return;
-
-    // ✅ incrementa giri e popup ogni 3
-    spins++;
-    localStorage.setItem(SPINS_KEY, String(spins));
-    if (spins % 3 === 0){
-      openPromo();
+    /* ===== DEMO DATA (fallback) ===== */
+    function buildDemoEvents(){
+      const now = Date.now();
+      const mk = (id, home, away, mins) => ({
+        id,
+        commence_time: new Date(now + mins*60*1000).toISOString(),
+        home_team: home,
+        away_team: away,
+        outcomes: [
+          { name:"Home", prob: 48.5, odds: null },
+          { name:"Draw", prob: 26.0, odds: null },
+          { name:"Away", prob: 25.5, odds: null },
+        ],
+        totals: [
+          { point: 2.5, outcomes:[ {name:"Over", prob:52.0, odds:null}, {name:"Under", prob:48.0, odds:null} ] }
+        ],
+        btts: { outcomes:[ {name:"Yes", prob:55.0, odds:null}, {name:"No", prob:45.0, odds:null} ] }
+      });
+      return [
+        mk("demo_1","Arsenal","Liverpool",90),
+        mk("demo_2","Inter","Juventus",140),
+        mk("demo_3","Real Madrid","Barcelona",210),
+        mk("demo_4","PSG","Marseille",260),
+      ];
     }
 
-    const bet = Number(betSelect.value);
-    if(balance < bet){
-      resultEl.style.display="block";
-      resultEl.style.color="#ff3b3b";
-      resultEl.textContent="Saldo insufficiente";
-      return;
+    /* ===== DOM ===== */
+    const el = (id) => document.getElementById(id);
+    const $ = {
+      rate: el("rateInfo"),
+      status: el("statusInfo"),
+      notice: el("notice"),
+      cards: el("cards"),
+      chipCount: el("chipCount"),
+      chipMode: el("chipMode"),
+      chipCtx: el("chipCtx"),
+
+      sport: el("sport"),
+      sportCustom: el("sportCustom"),
+      regions: el("regions"),
+      refresh: el("refreshBtn"),
+
+      overlay: el("modalOverlay"),
+      closeModal: el("closeModal"),
+      chatTitle: el("chatTitle"),
+      chatSub: el("chatSub"),
+      chatFeed: el("chatFeed"),
+      chatInput: el("chatInput"),
+      sendBtn: el("sendBtn"),
+      tabBtns: Array.from(document.querySelectorAll(".tabBtn")),
+      tabsRow: el("tabsRow"),
+
+      chatTeamsRow: el("chatTeamsRow"),
+      chatHomeLogo: el("chatHomeLogo"),
+      chatAwayLogo: el("chatAwayLogo"),
+      chatHomeName: el("chatHomeName"),
+      chatAwayName: el("chatAwayName"),
+    };
+
+    /* ===== STATE ===== */
+    let lastData = [];
+    let currentEvent = null;
+    let currentMode = "OPEN";
+    let chatHistory = [];
+    let isDemoMode = false;
+
+    // cache context per event.id
+    const contextCache = new Map();
+
+    /* ===== HELPERS ===== */
+    function esc(s){ return String(s ?? "").replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+    function fmtDate(iso){
+      try{
+        const d = new Date(iso);
+        return d.toLocaleString("it-IT",{weekday:"short",day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});
+      }catch{ return iso; }
+    }
+    function chosenSport(){
+      return ($.sport.value === "custom" && $.sportCustom.value.trim())
+        ? $.sportCustom.value.trim()
+        : $.sport.value;
+    }
+    function isSoccerKey(sportKey){
+      return /^soccer_/i.test(String(sportKey||""));
+    }
+    function bestOutcome(outcomes=[]){
+      return [...outcomes].sort((a,b)=>(b.prob||0)-(a.prob||0))[0];
+    }
+    function toItOutcome(name=""){
+      return /draw/i.test(name) ? "Pareggio" : /yes/i.test(name) ? "Gol" : /no/i.test(name) ? "No Gol" : name;
+    }
+    function showNotice(txt){
+      $.notice.textContent = txt;
+      $.notice.classList.remove("hidden");
+    }
+    function hideNotice(){ $.notice.classList.add("hidden"); }
+
+    function emptyState(msg){
+      return `
+        <div class="bg-white rounded-2xl border p-6 text-center text-slate-600 cardShadow" style="border-color:var(--border);">
+          ${esc(msg)}
+        </div>
+      `;
     }
 
-    balance -= bet;
-    updateBalance();
-    spinning = true;
-    resultEl.style.display="none";
-
-    let ticks = 0;
-    const interval = setInterval(()=>{
-      reels.forEach(r => r.textContent = randomSymbol());
-      ticks++;
-      if(ticks > 22){
-        clearInterval(interval);
-        finishSpin(bet);
+    // YYYY-MM-DD in Europe/Rome (evita problemi UTC)
+    function dateRomeYYYYMMDD(iso){
+      try{
+        const d = new Date(iso);
+        const parts = new Intl.DateTimeFormat("en-CA", {
+          timeZone:"Europe/Rome",
+          year:"numeric", month:"2-digit", day:"2-digit"
+        }).formatToParts(d);
+        const get = (t)=>parts.find(p=>p.type===t)?.value || "";
+        return `${get("year")}-${get("month")}-${get("day")}`;
+      }catch{
+        return String(iso||"").slice(0,10);
       }
-    },80);
-  }
-
-  function finishSpin(bet){
-    const a = reels[0].textContent;
-    const b = reels[1].textContent;
-    const c = reels[2].textContent;
-
-    let win = 0;
-
-    if(a === b && b === c){
-      win = bet * 10;
-      showResult("🎉 JACKPOT!", true);
-    } else if(a === b || b === c || a === c){
-      win = bet * 2;
-      showResult("✅ HAI VINTO!", true);
-    } else {
-      showResult("❌ HAI PERSO", false);
     }
 
-    if(win > 0) balance += win;
-    updateBalance();
-    spinning = false;
-  }
+    function safeJson(obj){
+      const s = JSON.stringify(obj || {});
+      return s.replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/&/g, "\\u0026");
+    }
 
-  function showResult(text, win){
-    resultEl.style.display="block";
-    resultEl.style.color = win ? "#2ecc71" : "#ff3b3b";
-    resultEl.textContent = text;
-  }
+    // Loghi (se già funzionano da te, NON cambiamo sorgente)
+    function teamLogoUrl(teamName){
+      // versione semplice: logo “placeholder” con iniziali se non hai mapping
+      // Se tu hai già una fonte reale, sostituisci QUI senza toccare altro.
+      const name = String(teamName||"").trim();
+      const initials = name.split(/\s+/).slice(0,2).map(w=>w[0]||"").join("").toUpperCase() || "FC";
+      return `https://dummyimage.com/68x68/ffffff/111827.png&text=${encodeURIComponent(initials)}`;
+    }
 
-  spinBtn.addEventListener("click", spin);
-  updateBalance();
-})();
-</script>
+    /* ===== API (ODDS) ===== */
+    async function fetchEvents(){
+      const sport = chosenSport();
+      const regions = $.regions.value;
+      const url = new URL(SERVICE_BASE + "/get-odds");
+      url.searchParams.set("sport", sport);
+      url.searchParams.set("regions", regions);
+      url.searchParams.set("live", "false");
+      url.searchParams.set("count", String(MAX_COUNT));
+      url.searchParams.set("markets", "h2h,totals,btts");
+      const r = await fetch(url, { headers:{ "Accept":"application/json" }});
+      return r.json();
+    }
 
+    function setDemoMode(on){
+      isDemoMode = !!on;
+      $.chipMode.textContent = on ? "modalità: demo" : "modalità: live";
+    }
+
+    /* ===== API (CONTEXT via football-hub) ===== */
+    async function fetchResolveFixtureId(ev){
+      const home = ev?.home_team || "";
+      const away = ev?.away_team || "";
+      const date = dateRomeYYYYMMDD(ev?.commence_time);
+
+      const url = new URL(FOOTBALL_HUB_BASE + "/resolve");
+      url.searchParams.set("home", home);
+      url.searchParams.set("away", away);
+      url.searchParams.set("date", date);
+
+      const r = await fetch(url, { headers:{ "Accept":"application/json" }});
+      const data = await r.json();
+
+      // estrazione super-robusta
+      const direct =
+        data?.fixture_id ??
+        data?.fixtureId ??
+        data?.fixture?.id ??
+        data?.fixture?.fixture?.id ??
+        data?.response?.[0]?.fixture?.id ??
+        data?.response?.[0]?.fixture?.fixture?.id;
+
+      const id = direct ? String(direct) : "";
+      return { id, raw: data };
+    }
+
+    async function fetchContextByFixtureId(fixtureId){
+      const url = new URL(FOOTBALL_HUB_BASE + "/context");
+      url.searchParams.set("fixture", String(fixtureId||""));
+      const r = await fetch(url, { headers:{ "Accept":"application/json" }});
+      const data = await r.json();
+      return data;
+    }
+
+    async function ensureContextForEvent(ev){
+      if (!ev || !isSoccerKey(chosenSport())) return null; // context solo calcio
+
+      if (contextCache.has(ev.id)) return contextCache.get(ev.id);
+
+      try{
+        const resolved = await fetchResolveFixtureId(ev);
+        if (!resolved.id){
+          contextCache.set(ev.id, null);
+          return null;
+        }
+        const ctx = await fetchContextByFixtureId(resolved.id);
+        // normalizziamo un minimo
+        const packed = { fixture_id: resolved.id, context: ctx };
+        contextCache.set(ev.id, packed);
+        return packed;
+      }catch(e){
+        contextCache.set(ev.id, null);
+        return null;
+      }
+    }
+
+    /* ===== LOAD ===== */
+    async function load(){
+      $.status.textContent = "stato: carico…";
+      hideNotice();
+      $.chipCtx.textContent = "context: —";
+
+      try{
+        const data = await fetchEvents();
+        const rate = data?.rate || {};
+        $.rate.textContent = `rate: remaining=${rate.remaining ?? "?"} used=${rate.used ?? "?"}`;
+
+        const remaining = Number(rate.remaining ?? NaN);
+        const mustDemo = (data?.ok === false) || (Number.isFinite(remaining) && remaining <= 0);
+
+        if (mustDemo){
+          setDemoMode(true);
+          showNotice("⚠️ Limite chiamate raggiunto (remaining=0). Attivo la modalità DEMO per non fermare la pagina.");
+          lastData = buildDemoEvents();
+          $.status.textContent = "stato: demo";
+          $.chipCount.textContent = `match: ${lastData.length || 0}`;
+          renderCards(lastData);
+          return;
+        }
+
+        setDemoMode(false);
+        lastData = data.events || [];
+        $.chipCount.textContent = `match: ${lastData.length || 0}`;
+
+        if (!lastData.length){
+          $.cards.innerHTML = emptyState("Nessun match trovato. Cambia sport o riprova.");
+          $.status.textContent = "stato: ok (0)";
+          return;
+        }
+
+        renderCards(lastData);
+        $.status.textContent = "stato: ok";
+      }catch(e){
+        console.error(e);
+        setDemoMode(true);
+        showNotice("⚠️ Problema di rete/backend. Attivo la modalità DEMO.");
+        lastData = buildDemoEvents();
+        $.chipCount.textContent = `match: ${lastData.length || 0}`;
+        renderCards(lastData);
+        $.status.textContent = "stato: demo";
+      }
+    }
+
+    /* ===== RENDER ===== */
+    function renderCards(events){
+      $.cards.innerHTML = events.map(renderCard).join("");
+    }
+
+    function renderCard(ev){
+      const pick = bestOutcome(ev.outcomes || []);
+      const when = fmtDate(ev.commence_time);
+
+      const homeLogo = teamLogoUrl(ev.home_team);
+      const awayLogo = teamLogoUrl(ev.away_team);
+
+      return `
+        <article class="bg-white rounded-2xl border p-4 md:p-5 cardShadow" style="border-color:var(--border);">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <h3 class="text-lg font-extrabold tracking-tight text-slate-900">
+                ${esc(ev.home_team)} <span class="text-slate-400">vs</span> ${esc(ev.away_team)}
+              </h3>
+              <div class="text-xs text-slate-500 mt-1">${esc(when)}</div>
+            </div>
+            <span class="chip">${isDemoMode ? "demo" : "live"}</span>
+          </div>
+
+          <div class="teamRow">
+            <img class="tlogo" src="${homeLogo}" alt="${esc(ev.home_team)} logo" loading="lazy">
+            <div class="font-extrabold text-slate-900">${esc(ev.home_team)}</div>
+            <div class="vsPill">VS</div>
+            <img class="tlogo" src="${awayLogo}" alt="${esc(ev.away_team)} logo" loading="lazy">
+            <div class="font-extrabold text-slate-900">${esc(ev.away_team)}</div>
+          </div>
+
+          <div class="mt-3 text-sm text-slate-700">
+            <span class="font-extrabold text-slate-900">Previsione (rapida):</span>
+            ${pick ? `${esc(toItOutcome(pick.name))}` : "—"}
+            <div class="text-xs text-slate-500 mt-1">(Niente quote qui: solo lettura e spiegazione.)</div>
+          </div>
+
+          <div class="mt-4 flex items-center justify-end">
+            <button class="btn btnPrimary"
+                    onclick='openBetty(${safeJson(ev)})'>
+              Leggi il Pronostico di Betty🧙‍♀️
+            </button>
+          </div>
+        </article>
+      `;
+    }
+
+    /* ===== MODAL ===== */
+    function openModal(){
+      $.overlay.classList.add("show");
+      $.overlay.setAttribute("aria-hidden","false");
+      document.body.style.overflow = "hidden";
+      setTimeout(()=> $.chatInput.focus(), 60);
+    }
+    function closeModal(){
+      $.overlay.classList.remove("show");
+      $.overlay.setAttribute("aria-hidden","true");
+      document.body.style.overflow = "";
+    }
+
+    function setMode(mode){
+      currentMode = mode;
+      $.tabBtns.forEach(b=>{
+        b.classList.toggle("active", b.dataset.mode === mode);
+      });
+    }
+
+    function setTabsVisibilityForSport(){
+      const soccer = isSoccerKey(chosenSport());
+      // sempre Analisi, gli altri solo calcio
+      $.tabBtns.forEach(btn=>{
+        const mode = btn.dataset.mode;
+        const isExtra = (mode !== "OPEN");
+        btn.style.display = (!soccer && isExtra) ? "none" : "";
+      });
+    }
+
+    function addUserBubble(text){
+      $.chatFeed.insertAdjacentHTML("beforeend", `
+        <div class="bubbleRow">
+          <div class="bubble bubbleUser">${esc(text)}</div>
+        </div>
+      `);
+      $.chatFeed.scrollTop = $.chatFeed.scrollHeight;
+    }
+
+    function addBettyBubble(text){
+      $.chatFeed.insertAdjacentHTML("beforeend", `
+        <div class="bubbleRow">
+          <div class="avatar" aria-hidden="true" style="width:30px;height:30px;font-size:16px;">🧙‍♀️</div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <div class="miniName">Betty</div>
+            <div class="bubble bubbleBetty">${esc(text)}</div>
+          </div>
+        </div>
+      `);
+      $.chatFeed.scrollTop = $.chatFeed.scrollHeight;
+    }
+
+    function addThinking(){
+      const id = "t_" + Math.random().toString(36).slice(2);
+      $.chatFeed.insertAdjacentHTML("beforeend", `
+        <div id="${id}" class="bubbleRow">
+          <div class="avatar" aria-hidden="true" style="width:30px;height:30px;font-size:16px;">🧙‍♀️</div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <div class="miniName">Betty</div>
+            <div class="bubble bubbleBetty" style="opacity:.75;font-style:italic;">Sto pensando…</div>
+          </div>
+        </div>
+      `);
+      $.chatFeed.scrollTop = $.chatFeed.scrollHeight;
+      return id;
+    }
+    function removeThinking(id){
+      const n = document.getElementById(id);
+      if (n) n.remove();
+    }
+
+    /* ===== BETTY CALL ===== */
+    async function askBetty(userText){
+      if (!currentEvent){
+        addBettyBubble("Seleziona prima un match 😊");
+        return "";
+      }
+
+      // context SOLO calcio: lo carichiamo qui e lo mandiamo nel payload
+      let ctxPack = null;
+      if (isSoccerKey(chosenSport()) && !isDemoMode){
+        ctxPack = await ensureContextForEvent(currentEvent);
+      }
+
+      $.chipCtx.textContent = ctxPack?.fixture_id ? `context: fixture ${ctxPack.fixture_id}` : "context: none";
+
+      // prompt “anti-invenzione” (aiuta anche se il backend è permissivo)
+      const guardrail = isSoccerKey(chosenSport())
+        ? "USA SOLO i dati nel campo 'context' (classifica, ultimi risultati, indisponibili, marcatori). Se un dato non c'è, dillo chiaramente e NON inventare."
+        : "Sport non calcio: niente 1X2/UnderOver/BTTS/marcatori. Fai analisi generale basata su matchup e trend probabilistici se disponibili.";
+
+      const payload = {
+        mode: currentMode,
+        prompt: `${guardrail}\n\n${userText || ""}`.trim(),
+        event: currentEvent,
+        context: ctxPack,              // <-- QUI la magia
+        history: chatHistory.slice(-10),
+        demo: isDemoMode
+      };
+
+      try{
+        const r = await fetch(BETTY_CHAT_URL + "/chat", {
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        let data = null;
+        try{ data = await r.json(); }catch{}
+
+        if (!r.ok) throw new Error(data?.error || data?.message || ("HTTP " + r.status));
+
+        const text = String(data?.content || data?.output_text || data?.text || data?.message || "").trim();
+        if (!text) throw new Error("Risposta vuota");
+        return text;
+      }catch(e){
+        const pick = bestOutcome(currentEvent?.outcomes || []);
+        const base = pick ? `Lettura rapida: scenario più probabile **${toItOutcome(pick.name)}**.` : "Lettura rapida disponibile.";
+        return `${base}\n\n(Nota: backend non disponibile o errore. Modalità fallback.)`;
+      }
+    }
+
+    /* ===== PUBLIC ===== */
+    window.openBetty = async function(ev){
+      currentEvent = ev;
+      chatHistory = [];
+
+      // header chat con loghi
+      const homeLogo = teamLogoUrl(ev.home_team);
+      const awayLogo = teamLogoUrl(ev.away_team);
+      $.chatTeamsRow.style.display = "flex";
+      $.chatHomeLogo.src = homeLogo;
+      $.chatAwayLogo.src = awayLogo;
+      $.chatHomeLogo.alt = ev.home_team + " logo";
+      $.chatAwayLogo.alt = ev.away_team + " logo";
+      $.chatHomeName.textContent = ev.home_team;
+      $.chatAwayName.textContent = ev.away_team;
+
+      $.chatTitle.textContent = `${ev.home_team} vs ${ev.away_team}`;
+      $.chatSub.textContent = fmtDate(ev.commence_time);
+      $.chatFeed.innerHTML = "";
+
+      // tabs visibili solo calcio
+      setTabsVisibilityForSport();
+      setMode("OPEN");
+      openModal();
+
+      const th = addThinking();
+      const opening = await askBetty("OPENING_ANALYSIS");
+      removeThinking(th);
+
+      // se non c'è context: avviso chiaro
+      if (isSoccerKey(chosenSport())){
+        const cached = contextCache.get(ev.id);
+        if (cached === null){
+          addBettyBubble("⚠️ Non sono riuscita ad agganciare il contesto (classifica/forma/indisponibili). Posso comunque fare una lettura ‘base’ dell’evento, ma NON userò dati inventati.");
+        }
+      }
+
+      addBettyBubble(opening);
+      chatHistory.push({ role:"assistant", content: opening });
+    }
+
+    /* ===== EVENTS ===== */
+    $.refresh.addEventListener("click", load);
+
+    $.sport.addEventListener("change", () => {
+      const custom = $.sport.value === "custom";
+      $.sportCustom.classList.toggle("hidden", !custom);
+      if (custom) $.sportCustom.focus();
+      setTabsVisibilityForSport();
+    });
+
+    $.tabBtns.forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        setMode(btn.dataset.mode);
+
+        const m = btn.dataset.mode;
+        if (m === "TOTALS") addBettyBubble("Modalità Under/Over attiva. Vuoi una linea specifica? (es. 2.5 / 3.5)");
+        else if (m === "BTTS") addBettyBubble("Modalità Gol/NoGol attiva. Ti dico lo scenario più plausibile coi dati del contesto.");
+        else if (m === "EXACT") addBettyBubble("Modalità Risultato Esatto attiva. Propongo 1–2 score coerenti coi dati del contesto.");
+        else if (m === "SCORER") addBettyBubble("Modalità Marcatore attiva. Propongo 1–2 nomi coerenti coi dati (top scorers + disponibilità).");
+        else addBettyBubble("Modalità Analisi attiva. Fammi una domanda libera.");
+      });
+    });
+
+    $.sendBtn.addEventListener("click", async ()=>{
+      const t = $.chatInput.value.trim();
+      if (!t) return;
+      $.chatInput.value = "";
+
+      addUserBubble(t);
+      chatHistory.push({ role:"user", content: t });
+
+      const th = addThinking();
+      const ans = await askBetty(t);
+      removeThinking(th);
+
+      addBettyBubble(ans);
+      chatHistory.push({ role:"assistant", content: ans });
+    });
+
+    $.chatInput.addEventListener("keydown", (e)=>{
+      if (e.key === "Enter" && !e.shiftKey){
+        e.preventDefault();
+        $.sendBtn.click();
+      }
+    });
+
+    $.closeModal.addEventListener("click", closeModal);
+    $.overlay.addEventListener("click", (e)=>{ if (e.target === $.overlay) closeModal(); });
+    document.addEventListener("keydown", (e)=>{ if (e.key === "Escape" && $.overlay.classList.contains("show")) closeModal(); });
+
+    /* ===== INIT ===== */
+    setTabsVisibilityForSport();
+    load();
+  </script>
 </body>
 </html>
