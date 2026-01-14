@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slot Machine – Demo</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet"/>
+
+<style>
+  body{
+    margin:0;
+    font-family:Roboto,system-ui;
+    background:#05050a;
+  }
+
+  .reel{
+    width:92px;
+    height:92px;
+    border-radius:16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:50px;
+    background:
+      radial-gradient(26px 22px at 30% 22%, rgba(255,255,255,.18), transparent 65%),
+      linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.35)),
+      #111;
+    border:1px solid rgba(255,255,255,.10);
+    box-shadow:
+      inset 0 0 16px rgba(0,0,0,.90),
+      0 10px 22px rgba(0,0,0,.45);
+  }
+
+  @media(max-width:520px){
+    .reel{width:84px;height:84px;font-size:46px}
+  }
+</style>
+</head>
+
+<body>
+
+<div id="slot-app" style="
+  max-width:560px;
+  margin:32px auto;
+  padding:22px;
+  border-radius:26px;
+  background:
+    radial-gradient(900px 420px at 30% 0%, rgba(255,200,90,.14), transparent 55%),
+    radial-gradient(700px 360px at 80% 20%, rgba(140,110,255,.14), transparent 55%),
+    linear-gradient(135deg,#0b0b10,#161622);
+  color:#fff;
+  box-shadow:0 40px 120px rgba(0,0,0,.62);
+  position:relative;
+  overflow:hidden;
+">
+
+  <!-- TITOLO -->
+  <h1 style="
+    text-align:center;
+    margin:0 0 6px;
+    font-size:30px;
+    font-weight:900;
+  ">🎰 Slot Machine Demo</h1>
+
+  <!-- DESCRIZIONE -->
+  <p style="
+    text-align:center;
+    font-size:14px;
+    line-height:1.5;
+    opacity:.85;
+    margin:0 0 16px;
+  ">
+    Scegli la puntata e premi <b>GIRA</b>.<br>
+    Abbina 2 simboli per vincere, 3 simboli per il jackpot.
+  </p>
+
+  <!-- SALDO -->
+  <div id="balance" style="
+    text-align:center;
+    font-size:18px;
+    font-weight:900;
+    margin-bottom:16px;
+  ">Saldo: € 1.000</div>
+
+  <!-- SLOT -->
+  <div style="
+    display:flex;
+    justify-content:center;
+    gap:14px;
+    background:#000;
+    padding:18px;
+    border-radius:18px;
+    margin-bottom:18px;
+    box-shadow:inset 0 0 20px rgba(0,0,0,.8);
+  ">
+    <div class="reel">🍒</div>
+    <div class="reel">🍋</div>
+    <div class="reel">🔔</div>
+  </div>
+
+  <!-- CONTROLLI -->
+  <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;">
+    <select id="bet" style="
+      padding:10px 14px;
+      border-radius:14px;
+      border:none;
+      font-weight:900;
+    ">
+      <option value="5">€ 5</option>
+      <option value="10" selected>€ 10</option>
+      <option value="25">€ 25</option>
+      <option value="50">€ 50</option>
+    </select>
+
+    <button id="spinBtn" style="
+      padding:14px 22px;
+      font-size:18px;
+      font-weight:900;
+      border:none;
+      border-radius:16px;
+      cursor:pointer;
+      background:linear-gradient(135deg,#f5c16c,#c79b3a);
+      color:#111;
+      box-shadow:0 18px 50px rgba(0,0,0,.45);
+    ">🎯 GIRA</button>
+  </div>
+
+  <!-- RISULTATO -->
+  <div id="result" style="
+    margin-top:18px;
+    font-size:28px;
+    font-weight:900;
+    text-align:center;
+    display:none;
+  "></div>
+
+  <!-- MINI REGOLE -->
+  <div style="
+    margin-top:16px;
+    padding:12px 14px;
+    border-radius:16px;
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.12);
+    font-size:12px;
+    line-height:1.45;
+  ">
+    <b>Regole rapide:</b><br>
+    • 2 simboli uguali → <b>x2</b><br>
+    • 3 simboli uguali → <b>JACKPOT x10</b><br>
+    • Nessuna combinazione → perdi la puntata
+  </div>
+</div>
+
+<!-- POPUP OGNI 3 GIRI -->
+<div id="promoOverlay" style="
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.6);
+  backdrop-filter:blur(2px);
+  -webkit-backdrop-filter:blur(2px);
+  z-index:999999;
+  padding:18px;
+">
+  <div style="
+    width:min(420px, 96vw);
+    border-radius:22px;
+    padding:22px;
+    background:
+      radial-gradient(700px 320px at 20% 0%, rgba(245,193,108,.14), transparent 55%),
+      radial-gradient(700px 320px at 80% 20%, rgba(140,110,255,.12), transparent 55%),
+      linear-gradient(135deg,#0b0b10,#161622);
+    color:#fff;
+    text-align:center;
+    box-shadow:0 30px 90px rgba(0,0,0,.65);
+    border:1px solid rgba(255,255,255,.12);
+  ">
+    <div style="font-size:28px;font-weight:900;margin-bottom:10px;">
+      Vuoi giocare sul serio?
+    </div>
+
+    <div style="font-size:15px;opacity:.85;margin-bottom:18px;line-height:1.45;">
+      Questa è solo una demo.<br>
+      Passa al gioco reale su un sito Partner!
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <a href="https://nextscore.it/referral" style="
+        text-decoration:none;
+        padding:14px 18px;
+        border-radius:16px;
+        background:linear-gradient(135deg,#f5c16c,#c79b3a);
+        color:#111;
+        font-weight:900;
+        box-shadow:0 18px 50px rgba(0,0,0,.45);
+        display:inline-flex;
+        align-items:center;
+        gap:10px;
+      ">
+        Sì, giochiamo 🎯
+      </a>
+
+      <button id="closePopup" style="
+        padding:14px 18px;
+        border-radius:16px;
+        border:1px solid rgba(255,255,255,.2);
+        background:rgba(255,255,255,.06);
+        color:#fff;
+        font-weight:900;
+        cursor:pointer;
+      ">
+        No, continua
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- BANNER FISSO IN BASSO -->
+<div id="partnerBanner" style="
+  position:fixed;
+  left:0; right:0; bottom:0;
+  z-index:999998;
+  padding:10px 12px;
+  background:
+    radial-gradient(900px 260px at 20% 0%, rgba(245,193,108,.18), transparent 60%),
+    radial-gradient(900px 260px at 80% 10%, rgba(140,110,255,.16), transparent 60%),
+    linear-gradient(135deg,#0b0b10,#141423);
+  border-top:1px solid rgba(255,255,255,.14);
+  box-shadow:0 -18px 60px rgba(0,0,0,.45);
+">
+  <div style="
+    max-width:560px;
+    margin:0 auto;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+    color:#fff;
+    font-family:Roboto,system-ui;
+  ">
+    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+      <div style="
+        width:38px; height:38px;
+        border-radius:14px;
+        background:linear-gradient(135deg,#f5c16c,#c79b3a);
+        display:flex; align-items:center; justify-content:center;
+        color:#111; font-weight:900;
+        box-shadow:0 14px 40px rgba(0,0,0,.35);
+      ">★</div>
+
+      <div style="line-height:1.2;">
+        <div style="font-weight:900; font-size:14px;">Vuoi fare sul serio?</div>
+        <div style="font-size:12px; color:rgba(255,255,255,.82);">Gioca su un sito Partner!</div>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <a href="https://nextscore.it/referral" style="
+        text-decoration:none;
+        padding:12px 14px;
+        border-radius:14px;
+        background:linear-gradient(135deg,#f5c16c,#c79b3a);
+        color:#111;
+        font-weight:900;
+        box-shadow:0 14px 46px rgba(0,0,0,.35);
+        white-space:nowrap;
+      ">
+        Vai al Partner →
+      </a>
+
+      <button id="bannerClose" style="
+        border:1px solid rgba(255,255,255,.16);
+        background:rgba(255,255,255,.06);
+        color:#fff;
+        border-radius:14px;
+        padding:12px 12px;
+        font-weight:900;
+        cursor:pointer;
+      ">✕</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const symbols = ["🍒","🍋","🔔","💎","⭐"];
+  const reels = document.querySelectorAll(".reel");
+  const spinBtn = document.getElementById("spinBtn");
+  const resultEl = document.getElementById("result");
+  const balanceEl = document.getElementById("balance");
+  const betSelect = document.getElementById("bet");
+
+  const overlay = document.getElementById("promoOverlay");
+  const closePopup = document.getElementById("closePopup");
+
+  let balance = 1000;
+  let spinning = false;
+
+  // ✅ conta giri e mostra popup OGNI 3 GIRI
+  const SPINS_KEY = "slot_spins_v2";
+  let spins = Number(localStorage.getItem(SPINS_KEY) || "0");
+
+  // banner close persistente
+  const BANNER_KEY = "slot_banner_closed_v1";
+  const banner = document.getElementById("partnerBanner");
+  const bannerClose = document.getElementById("bannerClose");
+  if (localStorage.getItem(BANNER_KEY) === "1") banner.style.display = "none";
+  bannerClose.addEventListener("click", () => {
+    banner.style.display = "none";
+    localStorage.setItem(BANNER_KEY, "1");
+  });
+
+  function updateBalance(){
+    balanceEl.textContent = "Saldo: € " + balance.toLocaleString("it-IT");
+  }
+
+  function randomSymbol(){
+    return symbols[Math.floor(Math.random()*symbols.length)];
+  }
+
+  function openPromo(){
+    overlay.style.display = "flex";
+    document.body.style.overflow = "hidden";
+  }
+  function closePromo(){
+    overlay.style.display = "none";
+    document.body.style.overflow = "";
+  }
+
+  // chiudi popup
+  closePopup.addEventListener("click", closePromo);
+  overlay.addEventListener("click", (e)=>{ if(e.target === overlay) closePromo(); });
+  window.addEventListener("keydown", (e)=>{ if(e.key === "Escape" && overlay.style.display === "flex") closePromo(); });
+
+  function spin(){
+    if(spinning) return;
+
+    // ✅ incrementa giri e popup ogni 3
+    spins++;
+    localStorage.setItem(SPINS_KEY, String(spins));
+    if (spins % 3 === 0){
+      openPromo();
+    }
+
+    const bet = Number(betSelect.value);
+    if(balance < bet){
+      resultEl.style.display="block";
+      resultEl.style.color="#ff3b3b";
+      resultEl.textContent="Saldo insufficiente";
+      return;
+    }
+
+    balance -= bet;
+    updateBalance();
+    spinning = true;
+    resultEl.style.display="none";
+
+    let ticks = 0;
+    const interval = setInterval(()=>{
+      reels.forEach(r => r.textContent = randomSymbol());
+      ticks++;
+      if(ticks > 22){
+        clearInterval(interval);
+        finishSpin(bet);
+      }
+    },80);
+  }
+
+  function finishSpin(bet){
+    const a = reels[0].textContent;
+    const b = reels[1].textContent;
+    const c = reels[2].textContent;
+
+    let win = 0;
+
+    if(a === b && b === c){
+      win = bet * 10;
+      showResult("🎉 JACKPOT!", true);
+    } else if(a === b || b === c || a === c){
+      win = bet * 2;
+      showResult("✅ HAI VINTO!", true);
+    } else {
+      showResult("❌ HAI PERSO", false);
+    }
+
+    if(win > 0) balance += win;
+    updateBalance();
+    spinning = false;
+  }
+
+  function showResult(text, win){
+    resultEl.style.display="block";
+    resultEl.style.color = win ? "#2ecc71" : "#ff3b3b";
+    resultEl.textContent = text;
+  }
+
+  spinBtn.addEventListener("click", spin);
+  updateBalance();
+})();
+</script>
+
+</body>
+</html>
