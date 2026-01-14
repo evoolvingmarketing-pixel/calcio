@@ -59,30 +59,28 @@
       box-shadow: 0 0 0 4px rgba(245,158,11,.14);
     }
 
-    /* Cards */
-    .teamRow{
-      display:flex; align-items:center; gap:10px;
-      margin-top:10px;
-      padding:10px 12px;
-      border:1px solid var(--border);
-      border-radius:16px;
-      background:#fff;
-    }
+    /* Team logo circles */
     .tlogo{
-      width:34px; height:34px;
-      border-radius:999px;
+      width:34px;height:34px;border-radius:999px;
+      display:inline-flex;align-items:center;justify-content:center;
       border:1px solid rgba(2,6,23,.10);
-      object-fit:contain;
       background:#fff;
+      overflow:hidden;
       flex:0 0 auto;
     }
+    .tlogo img{ width:100%;height:100%;object-fit:contain; display:block; }
+    .tlogo.fallback{
+      font-weight:900;
+      color:#0f172a;
+      background:#f8fafc;
+    }
     .vsPill{
+      padding:4px 10px;
+      border-radius:999px;
+      border:1px solid rgba(2,6,23,.10);
+      background:#fff7ed;
       font-weight:900;
       font-size:12px;
-      padding:6px 10px;
-      border-radius:999px;
-      border:1px solid var(--border);
-      background:#fff7ed;
       color:#7c2d12;
     }
 
@@ -110,11 +108,10 @@
       flex-direction:column;
     }
     .modalHeader{
-      display:flex; align-items:flex-start; justify-content:space-between;
+      display:flex; align-items:center; justify-content:space-between;
       padding:14px 16px;
       border-bottom:1px solid var(--border);
       background: linear-gradient(180deg, #ffffff 0%, #fffaf2 100%);
-      gap:14px;
     }
     .avatar{
       width:34px; height:34px;
@@ -126,6 +123,7 @@
       border:1px solid rgba(245,158,11,.30);
       font-size:18px;
       flex:0 0 auto;
+      overflow:hidden;
     }
     .modalBody{
       padding:14px 14px 0 14px;
@@ -186,6 +184,8 @@
       border-color: rgba(245,158,11,.50);
       background: #fff7ed;
     }
+    .tabBtn.hidden{ display:none !important; }
+
     .modalFooter{
       border-top:1px solid var(--border);
       padding:10px 12px;
@@ -209,22 +209,9 @@
       border-color: rgba(245,158,11,.55);
       box-shadow: 0 0 0 4px rgba(245,158,11,.14);
     }
-
-    /* Chat header teams */
-    .chatTeams{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      margin-top:6px;
-      flex-wrap:wrap;
-    }
-    .chatTeamName{ font-weight:900; font-size:13px; color:#0f172a; }
-    .chatMeta{ font-size:12px; color:#64748b; margin-top:2px; }
-
     @media (min-width: 900px){
       .modalOverlay{ align-items:center; }
       .modal{ max-height: 86vh; }
-      .modalHeader{ align-items:center; }
     }
   </style>
 </head>
@@ -237,7 +224,8 @@
           NextScore <span class="text-amber-600">Match Center</span>
         </h1>
         <p class="text-sm md:text-base text-slate-600 mt-1">
-          Seleziona un match e leggi l’analisi di <strong>Betty</strong> (con contesto: forma, classifica, marcatori, assenze).
+          Seleziona un match e leggi l’analisi di <strong>Betty</strong>
+          <span class="text-slate-500">(con contesto: forma, classifica, marcatori, indisponibili)</span>.
         </p>
       </div>
 
@@ -253,39 +241,38 @@
           <div class="md:col-span-2">
             <label class="block text-sm font-bold text-slate-800 mb-1">Sport / Campionato</label>
             <select id="sport" class="input">
-              <optgroup label="Calcio — Leghe">
-                <option value="soccer_italy_serie_a">Serie A</option>
-                <option value="soccer_epl">Premier League</option>
-                <option value="soccer_spain_la_liga">La Liga</option>
-                <option value="soccer_germany_bundesliga">Bundesliga</option>
-                <option value="soccer_france_ligue_one">Ligue 1</option>
-              </optgroup>
+              <!-- Calcio principali -->
+              <option value="soccer_italy_serie_a">Calcio — Serie A</option>
+              <option value="soccer_epl">Calcio — Premier League</option>
+              <option value="soccer_spain_la_liga">Calcio — La Liga</option>
+              <option value="soccer_germany_bundesliga">Calcio — Bundesliga</option>
+              <option value="soccer_france_ligue_one">Calcio — Ligue 1</option>
 
-              <optgroup label="Calcio — Coppe Europee">
-                <option value="soccer_uefa_champs_league">UEFA Champions League</option>
-                <option value="soccer_uefa_europa_league">UEFA Europa League</option>
-                <option value="soccer_uefa_europa_conference_league">UEFA Conference League</option>
-                <option value="soccer_uefa_nations_league">UEFA Nations League</option>
-              </optgroup>
+              <!-- Coppe UEFA -->
+              <option value="soccer_uefa_champs_league">UEFA — Champions League</option>
+              <option value="soccer_uefa_europa_league">UEFA — Europa League</option>
+              <option value="soccer_uefa_europa_conference_league">UEFA — Conference League</option>
+              <option value="soccer_uefa_nations_league">UEFA — Nations League</option>
 
-              <optgroup label="Calcio — Nazionali / Tornei">
-                <option value="soccer_fifa_world_cup">FIFA World Cup</option>
-                <option value="soccer_fifa_world_cup_qualifiers_europe">World Cup Qualifiers (EU)</option>
-                <option value="soccer_uefa_european_championship">EURO</option>
-                <option value="soccer_uefa_european_championship_qualifiers">EURO Qualifiers</option>
-              </optgroup>
+              <!-- Nazionali / tornei -->
+              <option value="soccer_uefa_euro">UEFA — Europei (EURO)</option>
+              <option value="soccer_uefa_euro_qualifiers">UEFA — Qualificazioni EURO</option>
+              <option value="soccer_fifa_world_cup">FIFA — Mondiali</option>
+              <option value="soccer_fifa_world_cup_qualifiers">FIFA — Qualificazioni Mondiali</option>
 
-              <optgroup label="Altri Sport">
-                <option value="basketball_nba">Basket — NBA</option>
-                <option value="tennis_atp">Tennis — ATP</option>
-              </optgroup>
+              <!-- Altri tornei -->
+              <option value="soccer_copa_america">CONMEBOL — Copa América</option>
+              <option value="soccer_africa_cup_of_nations">CAF — Coppa d’Africa</option>
+
+              <!-- Altri sport -->
+              <option value="basketball_nba">Basket — NBA</option>
+              <option value="tennis_atp">Tennis — ATP</option>
 
               <option value="custom">— Altro (custom) —</option>
             </select>
-
             <input id="sportCustom" type="text" class="input mt-2 hidden" placeholder="es. soccer_uefa_champs_league" />
             <div class="text-[12px] text-slate-500 mt-1">
-              Se non trovi una competizione: usa “custom” e incolla la sport_key.
+              Se non trovi una competizione: usa “custom” e incolla la <strong>sport_key</strong>.
             </div>
           </div>
 
@@ -309,7 +296,7 @@
           <span class="chip" id="chipMode">modalità: live</span>
           <span class="chip">stile: light premium</span>
           <span class="chip">AI: Betty 🧙‍♀️</span>
-          <span class="chip" id="chipCtx">context: —</span>
+          <span class="chip" id="chipContext">context: —</span>
         </div>
       </div>
     </section>
@@ -325,32 +312,34 @@
   <div id="modalOverlay" class="modalOverlay" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-label="Chat Betty">
       <div class="modalHeader">
-        <div class="flex items-start gap-3">
+        <div class="flex items-center gap-3">
           <div class="avatar" aria-hidden="true">🧙‍♀️</div>
-          <div>
+
+          <div class="flex flex-col gap-1">
             <div class="text-sm font-extrabold leading-tight">Betty</div>
 
-            <div class="chatTeams" id="chatTeamsRow" style="display:none;">
-              <img id="chatHomeLogo" class="tlogo" alt="">
-              <div class="chatTeamName" id="chatHomeName"></div>
-              <div class="vsPill">VS</div>
-              <img id="chatAwayLogo" class="tlogo" alt="">
-              <div class="chatTeamName" id="chatAwayName"></div>
+            <!-- Match header with logos -->
+            <div class="flex items-center gap-2">
+              <div id="mhHomeLogo" class="tlogo fallback" title="Home">H</div>
+              <div id="mhHomeName" class="text-xs font-extrabold text-slate-800">—</div>
+              <span class="vsPill">VS</span>
+              <div id="mhAwayLogo" class="tlogo fallback" title="Away">A</div>
+              <div id="mhAwayName" class="text-xs font-extrabold text-slate-800">—</div>
             </div>
 
-            <div id="chatSub" class="chatMeta">Seleziona un match per iniziare</div>
+            <div id="chatSub" class="text-xs text-slate-500">Seleziona un match per iniziare</div>
           </div>
         </div>
 
         <button id="closeModal" class="btn" style="padding:8px 12px;">Chiudi</button>
       </div>
 
-      <div class="microTabs" id="tabsRow">
-        <button class="tabBtn active" data-mode="OPEN">Analisi</button>
-        <button class="tabBtn" data-mode="TOTALS">Under/Over</button>
-        <button class="tabBtn" data-mode="BTTS">Gol/NoGol</button>
-        <button class="tabBtn" data-mode="EXACT">Risultato Esatto</button>
-        <button class="tabBtn" data-mode="SCORER">Marcatore</button>
+      <div class="microTabs">
+        <button class="tabBtn active" data-mode="OPEN" id="tabOPEN">Analisi</button>
+        <button class="tabBtn" data-mode="TOTALS" id="tabTOTALS">Under/Over</button>
+        <button class="tabBtn" data-mode="BTTS" id="tabBTTS">Gol/NoGol</button>
+        <button class="tabBtn" data-mode="EXACT" id="tabEXACT">Risultato Esatto</button>
+        <button class="tabBtn" data-mode="SCORER" id="tabSCORER">Marcatore</button>
       </div>
 
       <div class="modalBody">
@@ -367,12 +356,15 @@
 
   <script>
     /* ===== CONFIG ===== */
-    const SERVICE_BASE      = "https://get-odds-299332443653.europe-west8.run.app";
-    const BETTY_CHAT_URL    = "https://betty-chat-299332443653.europe-west8.run.app";
-    const FOOTBALL_HUB_BASE = "https://football-hub-299332443653.europe-west8.run.app"; // <-- il tuo football-hub
+    const SERVICE_BASE     = "https://get-odds-299332443653.europe-west8.run.app";
+    const BETTY_CHAT_URL   = "https://betty-chat-299332443653.europe-west8.run.app";
+
+    // ✅ IL TUO FOOTBALL-HUB (per classifica/forma/indisponibili/marcatori)
+    const FOOTBALL_HUB_BASE = "https://football-hub-299332443653.europe-west8.run.app";
+
     const MAX_COUNT = 100;
 
-    /* ===== DEMO DATA (fallback) ===== */
+    /* ===== DEMO DATA (fallback quando rate=0 o ok=false) ===== */
     function buildDemoEvents(){
       const now = Date.now();
       const mk = (id, home, away, mins) => ({
@@ -395,6 +387,12 @@
         mk("demo_2","Inter","Juventus",140),
         mk("demo_3","Real Madrid","Barcelona",210),
         mk("demo_4","PSG","Marseille",260),
+        mk("demo_5","Bayern","Dortmund",320),
+        mk("demo_6","Milan","Napoli",380),
+        mk("demo_7","Atalanta","Roma",430),
+        mk("demo_8","Chelsea","Man City",500),
+        mk("demo_9","Tottenham","Newcastle",560),
+        mk("demo_10","Atletico","Sevilla",620),
       ];
     }
 
@@ -407,7 +405,7 @@
       cards: el("cards"),
       chipCount: el("chipCount"),
       chipMode: el("chipMode"),
-      chipCtx: el("chipCtx"),
+      chipContext: el("chipContext"),
 
       sport: el("sport"),
       sportCustom: el("sportCustom"),
@@ -421,14 +419,18 @@
       chatFeed: el("chatFeed"),
       chatInput: el("chatInput"),
       sendBtn: el("sendBtn"),
-      tabBtns: Array.from(document.querySelectorAll(".tabBtn")),
-      tabsRow: el("tabsRow"),
 
-      chatTeamsRow: el("chatTeamsRow"),
-      chatHomeLogo: el("chatHomeLogo"),
-      chatAwayLogo: el("chatAwayLogo"),
-      chatHomeName: el("chatHomeName"),
-      chatAwayName: el("chatAwayName"),
+      tabBtns: Array.from(document.querySelectorAll(".tabBtn")),
+      tabOPEN: el("tabOPEN"),
+      tabTOTALS: el("tabTOTALS"),
+      tabBTTS: el("tabBTTS"),
+      tabEXACT: el("tabEXACT"),
+      tabSCORER: el("tabSCORER"),
+
+      mhHomeLogo: el("mhHomeLogo"),
+      mhAwayLogo: el("mhAwayLogo"),
+      mhHomeName: el("mhHomeName"),
+      mhAwayName: el("mhAwayName"),
     };
 
     /* ===== STATE ===== */
@@ -438,24 +440,34 @@
     let chatHistory = [];
     let isDemoMode = false;
 
-    // cache context per event.id
-    const contextCache = new Map();
+    // context fetched from football-hub
+    let currentContextBundle = null; // { resolve, context, fixture_id }
+    const contextCache = new Map(); // key => bundle
 
     /* ===== HELPERS ===== */
     function esc(s){ return String(s ?? "").replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
     function fmtDate(iso){
       try{
         const d = new Date(iso);
-        return d.toLocaleString("it-IT",{weekday:"short",day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});
+        return d.toLocaleString(undefined,{weekday:"short",day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});
       }catch{ return iso; }
+    }
+    function dateOnlyISO(iso){
+      try{
+        const d = new Date(iso);
+        const y = d.getUTCFullYear();
+        const m = String(d.getUTCMonth()+1).padStart(2,"0");
+        const da = String(d.getUTCDate()).padStart(2,"0");
+        return `${y}-${m}-${da}`;
+      }catch{ return String(iso||"").slice(0,10); }
     }
     function chosenSport(){
       return ($.sport.value === "custom" && $.sportCustom.value.trim())
         ? $.sportCustom.value.trim()
         : $.sport.value;
     }
-    function isSoccerKey(sportKey){
-      return /^soccer_/i.test(String(sportKey||""));
+    function isSoccerSportKey(sk){
+      return /^soccer_/i.test(String(sk||""));
     }
     function bestOutcome(outcomes=[]){
       return [...outcomes].sort((a,b)=>(b.prob||0)-(a.prob||0))[0];
@@ -477,36 +489,37 @@
       `;
     }
 
-    // YYYY-MM-DD in Europe/Rome (evita problemi UTC)
-    function dateRomeYYYYMMDD(iso){
-      try{
-        const d = new Date(iso);
-        const parts = new Intl.DateTimeFormat("en-CA", {
-          timeZone:"Europe/Rome",
-          year:"numeric", month:"2-digit", day:"2-digit"
-        }).formatToParts(d);
-        const get = (t)=>parts.find(p=>p.type===t)?.value || "";
-        return `${get("year")}-${get("month")}-${get("day")}`;
-      }catch{
-        return String(iso||"").slice(0,10);
-      }
-    }
-
     function safeJson(obj){
       const s = JSON.stringify(obj || {});
       return s.replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/&/g, "\\u0026");
     }
 
-    // Loghi (se già funzionano da te, NON cambiamo sorgente)
-    function teamLogoUrl(teamName){
-      // versione semplice: logo “placeholder” con iniziali se non hai mapping
-      // Se tu hai già una fonte reale, sostituisci QUI senza toccare altro.
-      const name = String(teamName||"").trim();
-      const initials = name.split(/\s+/).slice(0,2).map(w=>w[0]||"").join("").toUpperCase() || "FC";
-      return `https://dummyimage.com/68x68/ffffff/111827.png&text=${encodeURIComponent(initials)}`;
+    function setLogoNode(node, teamName, logoUrl){
+      // reset
+      node.classList.remove("fallback");
+      node.innerHTML = "";
+
+      if (!logoUrl){
+        node.classList.add("fallback");
+        node.textContent = (teamName||"?").slice(0,1).toUpperCase();
+        return;
+      }
+
+      const img = document.createElement("img");
+      img.alt = teamName || "logo";
+      img.src = logoUrl;
+      img.loading = "lazy";
+      img.referrerPolicy = "no-referrer";
+      img.onerror = () => {
+        // se è rotta → fallback lettera
+        node.innerHTML = "";
+        node.classList.add("fallback");
+        node.textContent = (teamName||"?").slice(0,1).toUpperCase();
+      };
+      node.appendChild(img);
     }
 
-    /* ===== API (ODDS) ===== */
+    /* ===== API (Odds list) ===== */
     async function fetchEvents(){
       const sport = chosenSport();
       const regions = $.regions.value;
@@ -525,68 +538,67 @@
       $.chipMode.textContent = on ? "modalità: demo" : "modalità: live";
     }
 
-    /* ===== API (CONTEXT via football-hub) ===== */
-    async function fetchResolveFixtureId(ev){
-      const home = ev?.home_team || "";
-      const away = ev?.away_team || "";
-      const date = dateRomeYYYYMMDD(ev?.commence_time);
-
+    /* ===== API (Football HUB context) ===== */
+    async function hubResolve(home, away, dateStr){
       const url = new URL(FOOTBALL_HUB_BASE + "/resolve");
       url.searchParams.set("home", home);
       url.searchParams.set("away", away);
-      url.searchParams.set("date", date);
-
+      url.searchParams.set("date", dateStr);
       const r = await fetch(url, { headers:{ "Accept":"application/json" }});
-      const data = await r.json();
-
-      // estrazione super-robusta
-      const direct =
-        data?.fixture_id ??
-        data?.fixtureId ??
-        data?.fixture?.id ??
-        data?.fixture?.fixture?.id ??
-        data?.response?.[0]?.fixture?.id ??
-        data?.response?.[0]?.fixture?.fixture?.id;
-
-      const id = direct ? String(direct) : "";
-      return { id, raw: data };
+      return r.json();
     }
 
-    async function fetchContextByFixtureId(fixtureId){
+    async function hubContext(fixtureId){
       const url = new URL(FOOTBALL_HUB_BASE + "/context");
-      url.searchParams.set("fixture", String(fixtureId||""));
+      url.searchParams.set("fixture", String(fixtureId));
       const r = await fetch(url, { headers:{ "Accept":"application/json" }});
-      const data = await r.json();
-      return data;
+      return r.json();
     }
 
-    async function ensureContextForEvent(ev){
-      if (!ev || !isSoccerKey(chosenSport())) return null; // context solo calcio
+    async function getContextBundleForEvent(ev){
+      const home = ev?.home_team;
+      const away = ev?.away_team;
+      const dateStr = dateOnlyISO(ev?.commence_time);
+      const key = `${home}__${away}__${dateStr}`;
 
-      if (contextCache.has(ev.id)) return contextCache.get(ev.id);
+      if (contextCache.has(key)) return contextCache.get(key);
 
-      try{
-        const resolved = await fetchResolveFixtureId(ev);
-        if (!resolved.id){
-          contextCache.set(ev.id, null);
-          return null;
-        }
-        const ctx = await fetchContextByFixtureId(resolved.id);
-        // normalizziamo un minimo
-        const packed = { fixture_id: resolved.id, context: ctx };
-        contextCache.set(ev.id, packed);
-        return packed;
-      }catch(e){
-        contextCache.set(ev.id, null);
-        return null;
+      // demo mode => niente hub
+      if (isDemoMode){
+        const bundle = { ok:false, reason:"demo", resolve:null, context:null, fixture_id:null };
+        contextCache.set(key, bundle);
+        return bundle;
       }
+
+      // 1) resolve -> fixture id + logos
+      const res = await hubResolve(home, away, dateStr);
+      if (!res?.ok || !res?.found || !res?.resolved?.fixture_id){
+        const bundle = { ok:false, reason:"resolve_failed", resolve:res || null, context:null, fixture_id:null };
+        contextCache.set(key, bundle);
+        return bundle;
+      }
+
+      const fixtureId = res.resolved.fixture_id;
+
+      // 2) context -> standings/form/injuries/topscorers/h2h
+      const ctx = await hubContext(fixtureId);
+      const bundle = {
+        ok: !!ctx?.ok,
+        reason: ctx?.ok ? "ok" : "context_failed",
+        resolve: res,
+        context: ctx,
+        fixture_id: fixtureId
+      };
+
+      contextCache.set(key, bundle);
+      return bundle;
     }
 
-    /* ===== LOAD ===== */
+    /* ===== LOAD EVENTS ===== */
     async function load(){
       $.status.textContent = "stato: carico…";
+      $.chipContext.textContent = "context: —";
       hideNotice();
-      $.chipCtx.textContent = "context: —";
 
       try{
         const data = await fetchEvents();
@@ -598,7 +610,7 @@
 
         if (mustDemo){
           setDemoMode(true);
-          showNotice("⚠️ Limite chiamate raggiunto (remaining=0). Attivo la modalità DEMO per non fermare la pagina.");
+          showNotice("⚠️ Limite chiamate raggiunto (remaining=0). Modalità DEMO attiva.");
           lastData = buildDemoEvents();
           $.status.textContent = "stato: demo";
           $.chipCount.textContent = `match: ${lastData.length || 0}`;
@@ -607,6 +619,7 @@
         }
 
         setDemoMode(false);
+
         lastData = data.events || [];
         $.chipCount.textContent = `match: ${lastData.length || 0}`;
 
@@ -621,7 +634,7 @@
       }catch(e){
         console.error(e);
         setDemoMode(true);
-        showNotice("⚠️ Problema di rete/backend. Attivo la modalità DEMO.");
+        showNotice("⚠️ Problema di rete/backend. Modalità DEMO attiva.");
         lastData = buildDemoEvents();
         $.chipCount.textContent = `match: ${lastData.length || 0}`;
         renderCards(lastData);
@@ -629,7 +642,7 @@
       }
     }
 
-    /* ===== RENDER ===== */
+    /* ===== RENDER CARDS ===== */
     function renderCards(events){
       $.cards.innerHTML = events.map(renderCard).join("");
     }
@@ -638,27 +651,30 @@
       const pick = bestOutcome(ev.outcomes || []);
       const when = fmtDate(ev.commence_time);
 
-      const homeLogo = teamLogoUrl(ev.home_team);
-      const awayLogo = teamLogoUrl(ev.away_team);
+      // logos: da hub li prenderemo al click (no chiamate extra qui). Intanto fallback con iniziali.
+      const h = esc(ev.home_team||"");
+      const a = esc(ev.away_team||"");
+      const hInitial = esc((ev.home_team||"H").slice(0,1).toUpperCase());
+      const aInitial = esc((ev.away_team||"A").slice(0,1).toUpperCase());
 
       return `
         <article class="bg-white rounded-2xl border p-4 md:p-5 cardShadow" style="border-color:var(--border);">
           <div class="flex items-start justify-between gap-3">
             <div>
               <h3 class="text-lg font-extrabold tracking-tight text-slate-900">
-                ${esc(ev.home_team)} <span class="text-slate-400">vs</span> ${esc(ev.away_team)}
+                ${h} <span class="text-slate-400">vs</span> ${a}
               </h3>
               <div class="text-xs text-slate-500 mt-1">${esc(when)}</div>
             </div>
             <span class="chip">${isDemoMode ? "demo" : "live"}</span>
           </div>
 
-          <div class="teamRow">
-            <img class="tlogo" src="${homeLogo}" alt="${esc(ev.home_team)} logo" loading="lazy">
-            <div class="font-extrabold text-slate-900">${esc(ev.home_team)}</div>
-            <div class="vsPill">VS</div>
-            <img class="tlogo" src="${awayLogo}" alt="${esc(ev.away_team)} logo" loading="lazy">
-            <div class="font-extrabold text-slate-900">${esc(ev.away_team)}</div>
+          <div class="mt-3 rounded-2xl border p-3 flex items-center gap-2" style="border-color:rgba(2,6,23,.08);">
+            <div class="tlogo fallback" title="${h}">${hInitial}</div>
+            <div class="text-sm font-extrabold text-slate-900">${h}</div>
+            <span class="vsPill">VS</span>
+            <div class="tlogo fallback" title="${a}">${aInitial}</div>
+            <div class="text-sm font-extrabold text-slate-900">${a}</div>
           </div>
 
           <div class="mt-3 text-sm text-slate-700">
@@ -693,17 +709,8 @@
     function setMode(mode){
       currentMode = mode;
       $.tabBtns.forEach(b=>{
+        if (b.classList.contains("hidden")) return;
         b.classList.toggle("active", b.dataset.mode === mode);
-      });
-    }
-
-    function setTabsVisibilityForSport(){
-      const soccer = isSoccerKey(chosenSport());
-      // sempre Analisi, gli altri solo calcio
-      $.tabBtns.forEach(btn=>{
-        const mode = btn.dataset.mode;
-        const isExtra = (mode !== "OPEN");
-        btn.style.display = (!soccer && isExtra) ? "none" : "";
       });
     }
 
@@ -729,6 +736,17 @@
       $.chatFeed.scrollTop = $.chatFeed.scrollHeight;
     }
 
+    function addWarn(text){
+      $.chatFeed.insertAdjacentHTML("beforeend", `
+        <div class="bubbleRow">
+          <div class="bubble bubbleBetty" style="border-color:rgba(245,158,11,.35);background:#fff7ed;">
+            ⚠️ ${esc(text)}
+          </div>
+        </div>
+      `);
+      $.chatFeed.scrollTop = $.chatFeed.scrollHeight;
+    }
+
     function addThinking(){
       const id = "t_" + Math.random().toString(36).slice(2);
       $.chatFeed.insertAdjacentHTML("beforeend", `
@@ -748,33 +766,74 @@
       if (n) n.remove();
     }
 
+    function setTabsForSport(sportKey){
+      const soccer = isSoccerSportKey(sportKey);
+      // calcio: tutto
+      $.tabBTTS.classList.toggle("hidden", !soccer);
+      $.tabEXACT.classList.toggle("hidden", !soccer);
+      $.tabSCORER.classList.toggle("hidden", !soccer);
+
+      // Under/Over ha senso quasi sempre: lo lasciamo visibile
+      $.tabTOTALS.classList.remove("hidden");
+
+      // se il tab attivo è nascosto, torna a OPEN
+      const active = $.tabBtns.find(b=>b.classList.contains("active"));
+      if (active && active.classList.contains("hidden")){
+        setMode("OPEN");
+      }
+    }
+
     /* ===== BETTY CALL ===== */
+    function buildAntiHallucinationPrompt(userText, mode, bundle){
+      // Istruzioni “hard” in prompt (senza toccare backend)
+      const hasCtx = !!(bundle && bundle.ok && bundle.context);
+      const ctxNote = hasCtx
+        ? "Hai un CONTEXTO dati (classifica/forma/infortuni/marcatori/h2h). Usalo."
+        : "NON hai contesto: NON inventare dati (classifica, forma, indisponibili, marcatori). Dì chiaramente che mancano.";
+
+      const modeRule =
+        mode === "SCORER"
+          ? "Se modalità MARCATORE: proponi 1–3 nomi SOLO se presenti in topscorers/lineups/roster nel contesto. Se non ci sono, chiedi la conferma della formazione o dici che mancano i dati."
+        : mode === "EXACT"
+          ? "Se modalità RISULTATO ESATTO: proponi 1–2 score coerenti usando forma (ultimi risultati), h2h, e trend gol; cita cosa nel contesto ti porta lì. Se mancano dati, dillo e fai una lettura prudente senza numeri inventati."
+        : mode === "BTTS"
+          ? "Se modalità GOL/NOGOL: usa trend gol fatti/subiti e totals/btts se presenti nel contesto; altrimenti dichiara che mancano i dati."
+        : mode === "TOTALS"
+          ? "Se modalità UNDER/OVER: usa trend gol e la linea richiesta; se manca, chiedi quale linea (2.5/3.5)."
+        : "Analisi: sintetica ma motivata. Se un dato non c’è nel contesto, non inventarlo.";
+
+      return [
+        "REGOLA ASSOLUTA:",
+        "- Non inventare NESSUN dato su rosa, trasferimenti, indisponibili, classifica, ultimi risultati.",
+        "- Usa SOLO ciò che trovi in `context` quando presente.",
+        "- Se manca un dato, scrivi: 'Questo dato non è disponibile nel contesto'.",
+        "",
+        ctxNote,
+        modeRule,
+        "",
+        "UTENTE:",
+        userText || ""
+      ].join("\n");
+    }
+
     async function askBetty(userText){
       if (!currentEvent){
         addBettyBubble("Seleziona prima un match 😊");
         return "";
       }
 
-      // context SOLO calcio: lo carichiamo qui e lo mandiamo nel payload
-      let ctxPack = null;
-      if (isSoccerKey(chosenSport()) && !isDemoMode){
-        ctxPack = await ensureContextForEvent(currentEvent);
-      }
-
-      $.chipCtx.textContent = ctxPack?.fixture_id ? `context: fixture ${ctxPack.fixture_id}` : "context: none";
-
-      // prompt “anti-invenzione” (aiuta anche se il backend è permissivo)
-      const guardrail = isSoccerKey(chosenSport())
-        ? "USA SOLO i dati nel campo 'context' (classifica, ultimi risultati, indisponibili, marcatori). Se un dato non c'è, dillo chiaramente e NON inventare."
-        : "Sport non calcio: niente 1X2/UnderOver/BTTS/marcatori. Fai analisi generale basata su matchup e trend probabilistici se disponibili.";
+      const sportKey = chosenSport();
 
       const payload = {
         mode: currentMode,
-        prompt: `${guardrail}\n\n${userText || ""}`.trim(),
+        prompt: buildAntiHallucinationPrompt(userText || "", currentMode, currentContextBundle),
         event: currentEvent,
-        context: ctxPack,              // <-- QUI la magia
+        // ✅ QUI PRIMA ERA NULL: ora passiamo il contesto vero
+        context: (currentContextBundle && currentContextBundle.ok) ? currentContextBundle.context : null,
+        resolve: (currentContextBundle && currentContextBundle.resolve) ? currentContextBundle.resolve : null,
         history: chatHistory.slice(-10),
-        demo: isDemoMode
+        demo: isDemoMode,
+        sport: sportKey
       };
 
       try{
@@ -793,9 +852,16 @@
         if (!text) throw new Error("Risposta vuota");
         return text;
       }catch(e){
+        // fallback demo senza backend
         const pick = bestOutcome(currentEvent?.outcomes || []);
         const base = pick ? `Lettura rapida: scenario più probabile **${toItOutcome(pick.name)}**.` : "Lettura rapida disponibile.";
-        return `${base}\n\n(Nota: backend non disponibile o errore. Modalità fallback.)`;
+        const modeHint =
+          (currentMode === "TOTALS") ? "Under/Over: dimmi la linea (2.5 / 3.5) e azzardo lo scenario."
+        : (currentMode === "BTTS") ? "Gol/NoGol: ti dico quale sembra più coerente coi ritmi."
+        : (currentMode === "EXACT") ? "Risultato esatto: posso azzardare 1–2 score realistici (solo gioco)."
+        : (currentMode === "SCORER") ? "Marcatore: posso azzardare 1–2 profili (punta/ala) ma servono i nomi."
+        : "Chiedimi: forma, ritmo, fasi, cosa aspettarti nel match.";
+        return `${base}\n${modeHint}\n\n(Modalità fallback: non ho contesto completo.)`;
       }
     }
 
@@ -803,38 +869,56 @@
     window.openBetty = async function(ev){
       currentEvent = ev;
       chatHistory = [];
+      currentContextBundle = null;
 
-      // header chat con loghi
-      const homeLogo = teamLogoUrl(ev.home_team);
-      const awayLogo = teamLogoUrl(ev.away_team);
-      $.chatTeamsRow.style.display = "flex";
-      $.chatHomeLogo.src = homeLogo;
-      $.chatAwayLogo.src = awayLogo;
-      $.chatHomeLogo.alt = ev.home_team + " logo";
-      $.chatAwayLogo.alt = ev.away_team + " logo";
-      $.chatHomeName.textContent = ev.home_team;
-      $.chatAwayName.textContent = ev.away_team;
+      const sportKey = chosenSport();
+      setTabsForSport(sportKey);
 
+      // header match
       $.chatTitle.textContent = `${ev.home_team} vs ${ev.away_team}`;
       $.chatSub.textContent = fmtDate(ev.commence_time);
       $.chatFeed.innerHTML = "";
 
-      // tabs visibili solo calcio
-      setTabsVisibilityForSport();
+      // header logos fallback
+      $.mhHomeName.textContent = ev.home_team || "Home";
+      $.mhAwayName.textContent = ev.away_team || "Away";
+      setLogoNode($.mhHomeLogo, ev.home_team, null);
+      setLogoNode($.mhAwayLogo, ev.away_team, null);
+
       setMode("OPEN");
       openModal();
 
+      // 1) carico contesto
+      addBettyBubble("Ok, aggancio il contesto del match (classifica/forma/indisponibili/marcatori)…");
+      $.chipContext.textContent = "context: carico…";
+
+      try{
+        const bundle = await getContextBundleForEvent(ev);
+        currentContextBundle = bundle;
+
+        if (bundle && bundle.ok && bundle.context){
+          $.chipContext.textContent = "context: ok";
+          addBettyBubble("Perfetto ✅ Contesto agganciato. Ora posso ragionare su dati reali.");
+
+          // loghi corretti da resolve, se presenti
+          const hLogo = bundle?.resolve?.resolved?.home_logo || bundle?.resolve?.resolved?.home?.logo;
+          const aLogo = bundle?.resolve?.resolved?.away_logo || bundle?.resolve?.resolved?.away?.logo;
+          setLogoNode($.mhHomeLogo, ev.home_team, hLogo || null);
+          setLogoNode($.mhAwayLogo, ev.away_team, aLogo || null);
+        }else{
+          $.chipContext.textContent = "context: NO";
+          addWarn("Non sono riuscita ad agganciare il contesto (resolve/context). Farò una lettura BASE senza inventare dati.");
+        }
+      }catch(err){
+        console.error(err);
+        $.chipContext.textContent = "context: NO";
+        addWarn("Errore aggancio contesto. Farò una lettura BASE senza inventare dati.");
+      }
+
+      // 2) apertura analisi
       const th = addThinking();
       const opening = await askBetty("OPENING_ANALYSIS");
       removeThinking(th);
-
-      // se non c'è context: avviso chiaro
-      if (isSoccerKey(chosenSport())){
-        const cached = contextCache.get(ev.id);
-        if (cached === null){
-          addBettyBubble("⚠️ Non sono riuscita ad agganciare il contesto (classifica/forma/indisponibili). Posso comunque fare una lettura ‘base’ dell’evento, ma NON userò dati inventati.");
-        }
-      }
 
       addBettyBubble(opening);
       chatHistory.push({ role:"assistant", content: opening });
@@ -847,19 +931,21 @@
       const custom = $.sport.value === "custom";
       $.sportCustom.classList.toggle("hidden", !custom);
       if (custom) $.sportCustom.focus();
-      setTabsVisibilityForSport();
     });
 
     $.tabBtns.forEach(btn=>{
       btn.addEventListener("click", ()=>{
+        if (btn.classList.contains("hidden")) return;
+
         setMode(btn.dataset.mode);
 
-        const m = btn.dataset.mode;
-        if (m === "TOTALS") addBettyBubble("Modalità Under/Over attiva. Vuoi una linea specifica? (es. 2.5 / 3.5)");
-        else if (m === "BTTS") addBettyBubble("Modalità Gol/NoGol attiva. Ti dico lo scenario più plausibile coi dati del contesto.");
-        else if (m === "EXACT") addBettyBubble("Modalità Risultato Esatto attiva. Propongo 1–2 score coerenti coi dati del contesto.");
-        else if (m === "SCORER") addBettyBubble("Modalità Marcatore attiva. Propongo 1–2 nomi coerenti coi dati (top scorers + disponibilità).");
-        else addBettyBubble("Modalità Analisi attiva. Fammi una domanda libera.");
+        addBettyBubble(
+          btn.dataset.mode === "TOTALS" ? "Modalità Under/Over attiva. Vuoi una linea specifica? (2.5 / 3.5)"
+          : btn.dataset.mode === "BTTS" ? "Modalità Gol/NoGol attiva. Ti rispondo usando trend gol e contesto."
+          : btn.dataset.mode === "EXACT" ? "Modalità Risultato Esatto attiva. Ti propongo 1–2 score motivati dal contesto."
+          : btn.dataset.mode === "SCORER" ? "Modalità Marcatore attiva. Ti propongo 1–3 nomi SOLO se disponibili nel contesto."
+          : "Modalità Analisi attiva. Fammi una domanda libera."
+        );
       });
     });
 
@@ -891,7 +977,6 @@
     document.addEventListener("keydown", (e)=>{ if (e.key === "Escape" && $.overlay.classList.contains("show")) closeModal(); });
 
     /* ===== INIT ===== */
-    setTabsVisibilityForSport();
     load();
   </script>
 </body>
