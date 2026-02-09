@@ -45,19 +45,6 @@
       color:#111827;
     }
     .btnPrimary:hover{ box-shadow:0 16px 40px rgba(245,158,11,.22); }
-    .btnGhost{
-      border-radius:999px;
-      padding:8px 12px;
-      font-weight:900;
-      font-size:12px;
-      border:1px solid var(--border);
-      background:#fff;
-      color:#0f172a;
-    }
-    .btnGhost.active{
-      border-color: rgba(245,158,11,.50);
-      background: #fff7ed;
-    }
     .input{
       width:100%;
       border-radius:14px;
@@ -72,7 +59,6 @@
       box-shadow: 0 0 0 4px rgba(245,158,11,.14);
     }
 
-    /* Team logo circles */
     .tlogo{
       width:34px;height:34px;border-radius:999px;
       display:inline-flex;align-items:center;justify-content:center;
@@ -97,7 +83,6 @@
       color:#7c2d12;
     }
 
-    /* Modal */
     .modalOverlay{
       position:fixed; inset:0;
       background: rgba(2,6,23,.45);
@@ -183,7 +168,6 @@
       gap:8px;
       padding:10px 14px 0 14px;
       flex-wrap:wrap;
-      align-items:center;
     }
     .tabBtn{
       border-radius:999px;
@@ -199,21 +183,6 @@
       background: #fff7ed;
     }
     .tabBtn.hidden{ display:none !important; }
-
-    .subBar{
-      padding:10px 14px 0 14px;
-      display:none;
-      gap:8px;
-      flex-wrap:wrap;
-      align-items:center;
-    }
-    .subBar.show{ display:flex; }
-    .subLabel{
-      font-size:12px;
-      font-weight:900;
-      color:#0f172a;
-      margin-right:2px;
-    }
 
     .modalFooter{
       border-top:1px solid var(--border);
@@ -267,33 +236,19 @@
     <section class="bg-white rounded-2xl border cardShadow" style="border-color:var(--border);">
       <div class="p-4 md:p-5">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <div class="md:col-span-2">
+          <div class="md:col-span-3">
             <label class="block text-sm font-bold text-slate-800 mb-1">Sport / Campionato</label>
             <select id="sport" class="input">
-              <!-- Calcio principali -->
               <option value="soccer_italy_serie_a">Calcio — Serie A</option>
               <option value="soccer_epl">Calcio — Premier League</option>
               <option value="soccer_spain_la_liga">Calcio — La Liga</option>
               <option value="soccer_germany_bundesliga">Calcio — Bundesliga</option>
               <option value="soccer_france_ligue_one">Calcio — Ligue 1</option>
 
-              <!-- Coppe UEFA -->
               <option value="soccer_uefa_champs_league">UEFA — Champions League</option>
               <option value="soccer_uefa_europa_league">UEFA — Europa League</option>
               <option value="soccer_uefa_europa_conference_league">UEFA — Conference League</option>
-              <option value="soccer_uefa_nations_league">UEFA — Nations League</option>
 
-              <!-- Nazionali / tornei -->
-              <option value="soccer_uefa_euro">UEFA — Europei (EURO)</option>
-              <option value="soccer_uefa_euro_qualifiers">UEFA — Qualificazioni EURO</option>
-              <option value="soccer_fifa_world_cup">FIFA — Mondiali</option>
-              <option value="soccer_fifa_world_cup_qualifiers">FIFA — Qualificazioni Mondiali</option>
-
-              <!-- Altri tornei -->
-              <option value="soccer_copa_america">CONMEBOL — Copa América</option>
-              <option value="soccer_africa_cup_of_nations">CAF — Coppa d’Africa</option>
-
-              <!-- Altri sport -->
               <option value="basketball_nba">Basket — NBA</option>
               <option value="tennis_atp">Tennis — ATP</option>
 
@@ -303,16 +258,6 @@
             <div class="text-[12px] text-slate-500 mt-1">
               Se non trovi una competizione: usa “custom” e incolla la <strong>sport_key</strong>.
             </div>
-          </div>
-
-          <div>
-            <label class="block text-sm font-bold text-slate-800 mb-1">Regione</label>
-            <select id="regions" class="input">
-              <option value="eu">EU</option>
-              <option value="uk">UK</option>
-              <option value="us">US</option>
-              <option value="au">AU</option>
-            </select>
           </div>
 
           <div class="flex items-end gap-2">
@@ -325,7 +270,6 @@
           <span class="chip" id="chipMode">modalità: live</span>
           <span class="chip">stile: light premium</span>
           <span class="chip">AI: Betty 🧙‍♀️</span>
-          <span class="chip" id="chipMarkets">markets: —</span>
           <span class="chip" id="chipContext">context: —</span>
         </div>
       </div>
@@ -344,11 +288,8 @@
       <div class="modalHeader">
         <div class="flex items-center gap-3">
           <div class="avatar" aria-hidden="true">🧙‍♀️</div>
-
           <div class="flex flex-col gap-1">
             <div class="text-sm font-extrabold leading-tight">Betty</div>
-
-            <!-- Match header with logos -->
             <div class="flex items-center gap-2">
               <div id="mhHomeLogo" class="tlogo fallback" title="Home">H</div>
               <div id="mhHomeName" class="text-xs font-extrabold text-slate-800">—</div>
@@ -356,7 +297,6 @@
               <div id="mhAwayLogo" class="tlogo fallback" title="Away">A</div>
               <div id="mhAwayName" class="text-xs font-extrabold text-slate-800">—</div>
             </div>
-
             <div id="chatSub" class="text-xs text-slate-500">Seleziona un match per iniziare</div>
           </div>
         </div>
@@ -368,15 +308,8 @@
         <button class="tabBtn active" data-mode="OPEN" id="tabOPEN">Analisi</button>
         <button class="tabBtn" data-mode="TOTALS" id="tabTOTALS">Under/Over</button>
         <button class="tabBtn" data-mode="BTTS" id="tabBTTS">Gol/NoGol</button>
-        <button class="tabBtn" data-mode="SPREADS" id="tabSPREADS">Handicap</button>
         <button class="tabBtn" data-mode="EXACT" id="tabEXACT">Risultato Esatto</button>
         <button class="tabBtn" data-mode="SCORER" id="tabSCORER">Marcatore</button>
-      </div>
-
-      <!-- sub-controls (linee totals / spreads) -->
-      <div id="subBar" class="subBar">
-        <span id="subLabel" class="subLabel"></span>
-        <div id="subChoices" class="flex gap-2 flex-wrap"></div>
       </div>
 
       <div class="modalBody">
@@ -395,13 +328,10 @@
     /* ===== CONFIG ===== */
     const SERVICE_BASE     = "https://get-odds-299332443653.europe-west8.run.app";
     const BETTY_CHAT_URL   = "https://betty-chat-299332443653.europe-west8.run.app";
-
-    // ✅ FOOTBALL-HUB (classifica/forma/indisponibili/marcatori)
     const FOOTBALL_HUB_BASE = "https://football-hub-299332443653.europe-west8.run.app";
 
     const MAX_COUNT = 100;
 
-    /* ===== DEMO DATA (fallback quando rate=0 o ok=false) ===== */
     function buildDemoEvents(){
       const now = Date.now();
       const mk = (id, home, away, mins) => ({
@@ -415,28 +345,17 @@
           { name:"Away", prob: 25.5, odds: null },
         ],
         totals: [
-          { point: 2.5, outcomes:[ {name:"Over", prob:52.0, odds:null}, {name:"Under", prob:48.0, odds:null} ], overround:null }
+          { point: 2.5, outcomes:[ {name:"Over", prob:52.0, odds:null}, {name:"Under", prob:48.0, odds:null} ] }
         ],
-        btts: { outcomes:[ {name:"Yes", prob:55.0, odds:null}, {name:"No", prob:45.0, odds:null} ] },
-        spreads: [
-          { point: -0.5, outcomes:[ {name:"Home", prob:52.0, odds:null}, {name:"Away", prob:48.0, odds:null} ], overround:null }
-        ]
+        btts: { outcomes:[ {name:"Yes", prob:55.0, odds:null}, {name:"No", prob:45.0, odds:null} ] }
       });
       return [
         mk("demo_1","Arsenal","Liverpool",90),
         mk("demo_2","Inter","Juventus",140),
         mk("demo_3","Real Madrid","Barcelona",210),
-        mk("demo_4","PSG","Marseille",260),
-        mk("demo_5","Bayern","Dortmund",320),
-        mk("demo_6","Milan","Napoli",380),
-        mk("demo_7","Atalanta","Roma",430),
-        mk("demo_8","Chelsea","Man City",500),
-        mk("demo_9","Tottenham","Newcastle",560),
-        mk("demo_10","Atletico","Sevilla",620),
       ];
     }
 
-    /* ===== DOM ===== */
     const el = (id) => document.getElementById(id);
     const $ = {
       rate: el("rateInfo"),
@@ -446,11 +365,9 @@
       chipCount: el("chipCount"),
       chipMode: el("chipMode"),
       chipContext: el("chipContext"),
-      chipMarkets: el("chipMarkets"),
 
       sport: el("sport"),
       sportCustom: el("sportCustom"),
-      regions: el("regions"),
       refresh: el("refreshBtn"),
 
       overlay: el("modalOverlay"),
@@ -465,13 +382,8 @@
       tabOPEN: el("tabOPEN"),
       tabTOTALS: el("tabTOTALS"),
       tabBTTS: el("tabBTTS"),
-      tabSPREADS: el("tabSPREADS"),
       tabEXACT: el("tabEXACT"),
       tabSCORER: el("tabSCORER"),
-
-      subBar: el("subBar"),
-      subLabel: el("subLabel"),
-      subChoices: el("subChoices"),
 
       mhHomeLogo: el("mhHomeLogo"),
       mhAwayLogo: el("mhAwayLogo"),
@@ -479,22 +391,15 @@
       mhAwayName: el("mhAwayName"),
     };
 
-    /* ===== STATE ===== */
     let lastData = [];
     let currentEvent = null;
     let currentMode = "OPEN";
     let chatHistory = [];
     let isDemoMode = false;
 
-    // selection for totals/spreads
-    let selectedTotalPoint = null;  // number
-    let selectedSpreadPoint = null; // number
+    let currentContextBundle = null;
+    const contextCache = new Map();
 
-    // context fetched from football-hub
-    let currentContextBundle = null; // { resolve, context, fixture_id }
-    const contextCache = new Map(); // key => bundle
-
-    /* ===== HELPERS ===== */
     function esc(s){ return String(s ?? "").replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
     function fmtDate(iso){
       try{
@@ -516,15 +421,10 @@
         ? $.sportCustom.value.trim()
         : $.sport.value;
     }
-    function isSoccerSportKey(sk){
-      return /^soccer_/i.test(String(sk||""));
-    }
-    function bestOutcome(outcomes=[]){
-      return [...outcomes].sort((a,b)=>(b.prob||0)-(a.prob||0))[0];
-    }
-    function toItOutcome(name=""){
-      return /draw/i.test(name) ? "Pareggio" : /yes/i.test(name) ? "Gol" : /no/i.test(name) ? "No Gol" : name;
-    }
+    function isSoccerSportKey(sk){ return /^soccer_/i.test(String(sk||"")); }
+    function bestOutcome(outcomes=[]){ return [...outcomes].sort((a,b)=>(b.prob||0)-(a.prob||0))[0]; }
+    function toItOutcome(name=""){ return /draw/i.test(name) ? "Pareggio" : /yes/i.test(name) ? "Gol" : /no/i.test(name) ? "No Gol" : name; }
+
     function showNotice(txt){
       $.notice.textContent = txt;
       $.notice.classList.remove("hidden");
@@ -547,13 +447,11 @@
     function setLogoNode(node, teamName, logoUrl){
       node.classList.remove("fallback");
       node.innerHTML = "";
-
       if (!logoUrl){
         node.classList.add("fallback");
         node.textContent = (teamName||"?").slice(0,1).toUpperCase();
         return;
       }
-
       const img = document.createElement("img");
       img.alt = teamName || "logo";
       img.src = logoUrl;
@@ -567,42 +465,25 @@
       node.appendChild(img);
     }
 
-    function hasMarket(ev, key){
-      if (!ev) return false;
-      if (key === "h2h") return Array.isArray(ev.outcomes) && ev.outcomes.length > 0;
-      if (key === "totals") return Array.isArray(ev.totals) && ev.totals.length > 0;
-      if (key === "btts") return !!(ev.btts && Array.isArray(ev.btts.outcomes) && ev.btts.outcomes.length > 0);
-      if (key === "spreads") return Array.isArray(ev.spreads) && ev.spreads.length > 0;
-      if (key === "exact") return Array.isArray(ev.exact) && ev.exact.length > 0;
-      if (key === "scorer") return Array.isArray(ev.scorers) && ev.scorers.length > 0;
-      return false;
-    }
-
-    function marketsForSport(sportKey){
-      // Calcio: h2h + totals + btts + spreads
-      if (isSoccerSportKey(sportKey)) return ["h2h","totals","btts","spreads"];
-      // Basket: spesso h2h + spreads + totals (btts no)
-      if (/^basketball_/i.test(sportKey)) return ["h2h","totals","spreads"];
-      // Tennis: h2h (e totals/spreads non sempre utili)
-      if (/^tennis_/i.test(sportKey)) return ["h2h"];
-      // default safe
-      return ["h2h","totals"];
-    }
-
-    /* ===== API (Odds list) ===== */
     async function fetchEvents(){
       const sport = chosenSport();
-      const regions = $.regions.value;
+      const regions = "eu"; // fisso, visto che nel tuo layout non hai più il select
+
       const url = new URL(SERVICE_BASE + "/get-odds");
       url.searchParams.set("sport", sport);
       url.searchParams.set("regions", regions);
       url.searchParams.set("live", "false");
       url.searchParams.set("count", String(MAX_COUNT));
-      const mk = marketsForSport(sport);
-      url.searchParams.set("markets", mk.join(","));
+      url.searchParams.set("markets", "h2h,totals,btts");
+
+      console.log("[NextScore] GET", url.toString());
 
       const r = await fetch(url, { headers:{ "Accept":"application/json" }});
-      return r.json();
+      const data = await r.json().catch(()=>null);
+
+      console.log("[NextScore] RESPONSE", r.status, data);
+
+      return data;
     }
 
     function setDemoMode(on){
@@ -610,7 +491,6 @@
       $.chipMode.textContent = on ? "modalità: demo" : "modalità: live";
     }
 
-    /* ===== API (Football HUB context) ===== */
     async function hubResolve(home, away, dateStr){
       const url = new URL(FOOTBALL_HUB_BASE + "/resolve");
       url.searchParams.set("home", home);
@@ -619,7 +499,6 @@
       const r = await fetch(url, { headers:{ "Accept":"application/json" }});
       return r.json();
     }
-
     async function hubContext(fixtureId){
       const url = new URL(FOOTBALL_HUB_BASE + "/context");
       url.searchParams.set("fixture", String(fixtureId));
@@ -634,7 +513,6 @@
       const key = `${home}__${away}__${dateStr}`;
 
       if (contextCache.has(key)) return contextCache.get(key);
-
       if (isDemoMode){
         const bundle = { ok:false, reason:"demo", resolve:null, context:null, fixture_id:null };
         contextCache.set(key, bundle);
@@ -663,59 +541,6 @@
       return bundle;
     }
 
-    /* ===== LOAD EVENTS ===== */
-    async function load(){
-      $.status.textContent = "stato: carico…";
-      $.chipContext.textContent = "context: —";
-      $.chipMarkets.textContent = "markets: —";
-      hideNotice();
-
-      try{
-        const data = await fetchEvents();
-        const rate = data?.rate || {};
-        $.rate.textContent = `rate: remaining=${rate.remaining ?? "?"} used=${rate.used ?? "?"}`;
-
-        const remaining = Number(rate.remaining ?? NaN);
-        const mustDemo = (data?.ok === false) || (Number.isFinite(remaining) && remaining <= 0);
-
-        if (mustDemo){
-          setDemoMode(true);
-          showNotice("⚠️ Limite chiamate raggiunto (remaining=0). Modalità DEMO attiva.");
-          lastData = buildDemoEvents();
-          $.status.textContent = "stato: demo";
-          $.chipCount.textContent = `match: ${lastData.length || 0}`;
-          $.chipMarkets.textContent = `markets: demo`;
-          renderCards(lastData);
-          return;
-        }
-
-        setDemoMode(false);
-
-        lastData = data.events || [];
-        $.chipCount.textContent = `match: ${lastData.length || 0}`;
-        $.chipMarkets.textContent = `markets: ${data?.markets || "—"}`;
-
-        if (!lastData.length){
-          $.cards.innerHTML = emptyState("Nessun match trovato. Cambia sport o riprova.");
-          $.status.textContent = "stato: ok (0)";
-          return;
-        }
-
-        renderCards(lastData);
-        $.status.textContent = "stato: ok";
-      }catch(e){
-        console.error(e);
-        setDemoMode(true);
-        showNotice("⚠️ Problema di rete/backend. Modalità DEMO attiva.");
-        lastData = buildDemoEvents();
-        $.chipCount.textContent = `match: ${lastData.length || 0}`;
-        $.chipMarkets.textContent = `markets: demo`;
-        renderCards(lastData);
-        $.status.textContent = "stato: demo";
-      }
-    }
-
-    /* ===== RENDER CARDS ===== */
     function renderCards(events){
       $.cards.innerHTML = events.map(renderCard).join("");
     }
@@ -723,18 +548,10 @@
     function renderCard(ev){
       const pick = bestOutcome(ev.outcomes || []);
       const when = fmtDate(ev.commence_time);
-
       const h = esc(ev.home_team||"");
       const a = esc(ev.away_team||"");
       const hInitial = esc((ev.home_team||"H").slice(0,1).toUpperCase());
       const aInitial = esc((ev.away_team||"A").slice(0,1).toUpperCase());
-
-      // chips market availability
-      const chips = [];
-      if (hasMarket(ev,"h2h")) chips.push(`<span class="chip">1X2</span>`);
-      if (hasMarket(ev,"totals")) chips.push(`<span class="chip">U/O</span>`);
-      if (hasMarket(ev,"btts")) chips.push(`<span class="chip">BTTS</span>`);
-      if (hasMarket(ev,"spreads")) chips.push(`<span class="chip">AH</span>`);
 
       return `
         <article class="bg-white rounded-2xl border p-4 md:p-5 cardShadow" style="border-color:var(--border);">
@@ -759,14 +576,11 @@
           <div class="mt-3 text-sm text-slate-700">
             <span class="font-extrabold text-slate-900">Previsione (rapida):</span>
             ${pick ? `${esc(toItOutcome(pick.name))}` : "—"}
-            <div class="text-xs text-slate-500 mt-1">(Niente “gioca X”: solo lettura e spiegazione.)</div>
+            <div class="text-xs text-slate-500 mt-1">(Niente quote qui: solo lettura e spiegazione.)</div>
           </div>
 
-          <div class="mt-3 flex flex-wrap gap-2">${chips.join("")}</div>
-
           <div class="mt-4 flex items-center justify-end">
-            <button class="btn btnPrimary"
-                    onclick='openBetty(${safeJson(ev)})'>
+            <button class="btn btnPrimary" onclick='openBetty(${safeJson(ev)})'>
               Leggi il Pronostico di Betty🧙‍♀️
             </button>
           </div>
@@ -774,7 +588,65 @@
       `;
     }
 
-    /* ===== MODAL ===== */
+    async function load(){
+      $.status.textContent = "stato: carico…";
+      $.chipContext.textContent = "context: —";
+      hideNotice();
+
+      try{
+        const data = await fetchEvents();
+
+        const rate = data?.rate || {};
+        $.rate.textContent = `rate: remaining=${rate.remaining ?? "?"} used=${rate.used ?? "?"}`;
+
+        // 🔥 MOSTRA SUBITO ERRORI BACKEND
+        if (!data || data.ok === false){
+          const msg = `⚠️ Backend ok=false. error=${data?.error || "?"} status=${data?.status || "?"} details=${typeof data?.details === "string" ? data.details : JSON.stringify(data?.details || {})}`;
+          showNotice(msg);
+          $.cards.innerHTML = emptyState("Nessun match perché il backend sta rispondendo con errore. Guarda il box arancione sopra.");
+          $.chipCount.textContent = `match: 0`;
+          $.status.textContent = "stato: errore backend";
+          return;
+        }
+
+        const remaining = Number(rate.remaining ?? NaN);
+        const mustDemo = (Number.isFinite(remaining) && remaining <= 0);
+
+        if (mustDemo){
+          setDemoMode(true);
+          showNotice("⚠️ Limite chiamate raggiunto (remaining=0). Modalità DEMO attiva.");
+          lastData = buildDemoEvents();
+          $.status.textContent = "stato: demo";
+          $.chipCount.textContent = `match: ${lastData.length || 0}`;
+          renderCards(lastData);
+          return;
+        }
+
+        setDemoMode(false);
+
+        lastData = data.events || [];
+        $.chipCount.textContent = `match: ${lastData.length || 0}`;
+
+        if (!lastData.length){
+          showNotice("⚠️ Il backend è OK ma non ha trovato eventi per questa competizione. Prova un’altra sport_key o 'custom'.");
+          $.cards.innerHTML = emptyState("Nessun match trovato. Cambia sport o riprova.");
+          $.status.textContent = "stato: ok (0)";
+          return;
+        }
+
+        renderCards(lastData);
+        $.status.textContent = "stato: ok";
+      }catch(e){
+        console.error(e);
+        setDemoMode(true);
+        showNotice("⚠️ Problema di rete/backend (fetch fallita). Modalità DEMO attiva.");
+        lastData = buildDemoEvents();
+        $.chipCount.textContent = `match: ${lastData.length || 0}`;
+        renderCards(lastData);
+        $.status.textContent = "stato: demo";
+      }
+    }
+
     function openModal(){
       $.overlay.classList.add("show");
       $.overlay.setAttribute("aria-hidden","false");
@@ -793,7 +665,6 @@
         if (b.classList.contains("hidden")) return;
         b.classList.toggle("active", b.dataset.mode === mode);
       });
-      renderSubControls(); // refresh sub controls when mode changes
     }
 
     function addUserBubble(text){
@@ -848,99 +719,16 @@
       if (n) n.remove();
     }
 
-    function setTabsForEvent(ev){
-      const sportKey = chosenSport();
+    function setTabsForSport(sportKey){
       const soccer = isSoccerSportKey(sportKey);
-
-      // show/hide based on REAL data in the match
-      $.tabTOTALS.classList.toggle("hidden", !hasMarket(ev,"totals"));
-      $.tabBTTS.classList.toggle("hidden", !soccer || !hasMarket(ev,"btts"));
-      $.tabSPREADS.classList.toggle("hidden", !hasMarket(ev,"spreads"));
-
-      // these are not implemented via get-odds right now -> hide unless someday present
-      $.tabEXACT.classList.toggle("hidden", !hasMarket(ev,"exact"));
-      $.tabSCORER.classList.toggle("hidden", !hasMarket(ev,"scorer"));
-
-      // if current mode now hidden -> fallback to OPEN
+      $.tabBTTS.classList.toggle("hidden", !soccer);
+      $.tabEXACT.classList.toggle("hidden", !soccer);
+      $.tabSCORER.classList.toggle("hidden", !soccer);
+      $.tabTOTALS.classList.remove("hidden");
       const active = $.tabBtns.find(b=>b.classList.contains("active"));
       if (active && active.classList.contains("hidden")) setMode("OPEN");
     }
 
-    function getAvailableTotalsPoints(ev){
-      const pts = (ev?.totals || []).map(x => x?.point).filter(x => typeof x === "number" && isFinite(x));
-      return Array.from(new Set(pts)).sort((a,b)=>a-b);
-    }
-
-    function getAvailableSpreadsPoints(ev){
-      const pts = (ev?.spreads || []).map(x => x?.point).filter(x => typeof x === "number" && isFinite(x));
-      return Array.from(new Set(pts)).sort((a,b)=>a-b);
-    }
-
-    function renderSubControls(){
-      if (!currentEvent){
-        $.subBar.classList.remove("show");
-        $.subChoices.innerHTML = "";
-        return;
-      }
-
-      // totals line chooser
-      if (currentMode === "TOTALS" && hasMarket(currentEvent,"totals")){
-        const pts = getAvailableTotalsPoints(currentEvent);
-        if (!pts.length){
-          $.subBar.classList.remove("show");
-          return;
-        }
-        if (selectedTotalPoint === null) selectedTotalPoint = pts.includes(2.5) ? 2.5 : pts[0];
-
-        $.subLabel.textContent = "Linea:";
-        $.subChoices.innerHTML = pts.map(p => `
-          <button class="btnGhost ${p===selectedTotalPoint ? "active":""}" onclick="selectTotalPoint(${p})">
-            ${p}
-          </button>
-        `).join("");
-
-        $.subBar.classList.add("show");
-        return;
-      }
-
-      // spreads point chooser
-      if (currentMode === "SPREADS" && hasMarket(currentEvent,"spreads")){
-        const pts = getAvailableSpreadsPoints(currentEvent);
-        if (!pts.length){
-          $.subBar.classList.remove("show");
-          return;
-        }
-        if (selectedSpreadPoint === null) selectedSpreadPoint = pts[0];
-
-        $.subLabel.textContent = "Handicap:";
-        $.subChoices.innerHTML = pts.map(p => `
-          <button class="btnGhost ${p===selectedSpreadPoint ? "active":""}" onclick="selectSpreadPoint(${p})">
-            ${p > 0 ? "+"+p : p}
-          </button>
-        `).join("");
-
-        $.subBar.classList.add("show");
-        return;
-      }
-
-      // other modes: hide sub bar
-      $.subBar.classList.remove("show");
-      $.subChoices.innerHTML = "";
-    }
-
-    window.selectTotalPoint = function(p){
-      selectedTotalPoint = Number(p);
-      renderSubControls();
-      addBettyBubble(`Ok ✅ Under/Over sulla linea ${selectedTotalPoint}. Se vuoi: "spiegami perché" oppure "Over o Under?"`);
-    };
-
-    window.selectSpreadPoint = function(p){
-      selectedSpreadPoint = Number(p);
-      renderSubControls();
-      addBettyBubble(`Ok ✅ Handicap ${selectedSpreadPoint > 0 ? "+"+selectedSpreadPoint : selectedSpreadPoint}. Se vuoi: "che lato ha senso?"`);
-    };
-
-    /* ===== BETTY CALL ===== */
     function buildAntiHallucinationPrompt(userText, mode, bundle){
       const hasCtx = !!(bundle && bundle.ok && bundle.context);
       const ctxNote = hasCtx
@@ -948,12 +736,14 @@
         : "NON hai contesto: NON inventare dati (classifica, forma, indisponibili, marcatori). Dì chiaramente che mancano.";
 
       const modeRule =
-        mode === "TOTALS"
-          ? "Se modalità UNDER/OVER: usa trend gol e la linea selezionata. Se la linea non è specificata, chiedila."
+        mode === "SCORER"
+          ? "Se modalità MARCATORE: proponi 1–3 nomi SOLO se presenti in topscorers/lineups/roster nel contesto. Se non ci sono, chiedi la conferma della formazione o dici che mancano i dati."
+        : mode === "EXACT"
+          ? "Se modalità RISULTATO ESATTO: proponi 1–2 score coerenti usando forma (ultimi risultati), h2h, e trend gol; cita cosa nel contesto ti porta lì. Se mancano dati, dillo e fai una lettura prudente senza numeri inventati."
         : mode === "BTTS"
-          ? "Se modalità GOL/NOGOL (BTTS): usa trend gol fatti/subiti e contesto. Se mancano dati, dichiaralo."
-        : mode === "SPREADS"
-          ? "Se modalità HANDICAP: usa differenza valori (forma, matchup), ma senza inventare dati. Se manca contesto, fai lettura prudente."
+          ? "Se modalità GOL/NOGOL: usa trend gol fatti/subiti e totals/btts se presenti nel contesto; altrimenti dichiara che mancano i dati."
+        : mode === "TOTALS"
+          ? "Se modalità UNDER/OVER: usa trend gol e la linea richiesta; se manca, chiedi quale linea (2.5/3.5)."
         : "Analisi: sintetica ma motivata. Se un dato non c’è nel contesto, non inventarlo.";
 
       return [
@@ -968,21 +758,6 @@
         "UTENTE:",
         userText || ""
       ].join("\n");
-    }
-
-    function buildModeUserText(rawUserText){
-      // arricchiamo la domanda con la linea selezionata quando serve
-      if (currentMode === "TOTALS"){
-        const line = selectedTotalPoint;
-        const prefix = (typeof line === "number") ? `LINE=${line} ` : "";
-        return prefix + (rawUserText || "");
-      }
-      if (currentMode === "SPREADS"){
-        const line = selectedSpreadPoint;
-        const prefix = (typeof line === "number") ? `HANDICAP_POINT=${line} ` : "";
-        return prefix + (rawUserText || "");
-      }
-      return rawUserText || "";
     }
 
     async function askBetty(userText){
@@ -1001,12 +776,7 @@
         resolve: (currentContextBundle && currentContextBundle.resolve) ? currentContextBundle.resolve : null,
         history: chatHistory.slice(-10),
         demo: isDemoMode,
-        sport: sportKey,
-        // extra hints for backend (if you want to use them later)
-        selections: {
-          totals_point: selectedTotalPoint,
-          spreads_point: selectedSpreadPoint
-        }
+        sport: sportKey
       };
 
       try{
@@ -1028,33 +798,27 @@
         const pick = bestOutcome(currentEvent?.outcomes || []);
         const base = pick ? `Lettura rapida: scenario più probabile **${toItOutcome(pick.name)}**.` : "Lettura rapida disponibile.";
         const modeHint =
-          (currentMode === "TOTALS") ? `Under/Over: linea ${selectedTotalPoint ?? "?"}. Dimmi 'Over o Under?' e ti rispondo.`
+          (currentMode === "TOTALS") ? "Under/Over: dimmi la linea (2.5 / 3.5) e azzardo lo scenario."
         : (currentMode === "BTTS") ? "Gol/NoGol: ti dico quale sembra più coerente coi ritmi."
-        : (currentMode === "SPREADS") ? `Handicap: punto ${selectedSpreadPoint ?? "?"}. Dimmi 'Home o Away?' e ti rispondo.`
-        : "Chiedimi: ritmo, fasi del match, cosa aspettarti.";
+        : (currentMode === "EXACT") ? "Risultato esatto: posso azzardare 1–2 score realistici (solo gioco)."
+        : (currentMode === "SCORER") ? "Marcatore: posso azzardare 1–2 profili (punta/ala) ma servono i nomi."
+        : "Chiedimi: forma, ritmo, fasi, cosa aspettarti nel match.";
         return `${base}\n${modeHint}\n\n(Modalità fallback: non ho contesto completo.)`;
       }
     }
 
-    /* ===== PUBLIC ===== */
     window.openBetty = async function(ev){
       currentEvent = ev;
       chatHistory = [];
       currentContextBundle = null;
 
-      // reset selections
-      selectedTotalPoint = null;
-      selectedSpreadPoint = null;
+      const sportKey = chosenSport();
+      setTabsForSport(sportKey);
 
-      // set tabs visibility based on match data
-      setTabsForEvent(ev);
-
-      // header match
       $.chatTitle.textContent = `${ev.home_team} vs ${ev.away_team}`;
       $.chatSub.textContent = fmtDate(ev.commence_time);
       $.chatFeed.innerHTML = "";
 
-      // header logos fallback
       $.mhHomeName.textContent = ev.home_team || "Home";
       $.mhAwayName.textContent = ev.away_team || "Away";
       setLogoNode($.mhHomeLogo, ev.home_team, null);
@@ -1063,7 +827,6 @@
       setMode("OPEN");
       openModal();
 
-      // 1) carico contesto
       addBettyBubble("Ok, aggancio il contesto del match (classifica/forma/indisponibili/marcatori)…");
       $.chipContext.textContent = "context: carico…";
 
@@ -1089,7 +852,6 @@
         addWarn("Errore aggancio contesto. Farò una lettura BASE senza inventare dati.");
       }
 
-      // 2) apertura analisi
       const th = addThinking();
       const opening = await askBetty("OPENING_ANALYSIS");
       removeThinking(th);
@@ -1098,7 +860,6 @@
       chatHistory.push({ role:"assistant", content: opening });
     }
 
-    /* ===== EVENTS ===== */
     $.refresh.addEventListener("click", load);
 
     $.sport.addEventListener("change", () => {
@@ -1113,27 +874,23 @@
 
         setMode(btn.dataset.mode);
 
-        if (btn.dataset.mode === "TOTALS"){
-          addBettyBubble("Modalità Under/Over attiva ✅ Scegli la linea qui sopra e poi chiedimi: 'Over o Under?'");
-        } else if (btn.dataset.mode === "BTTS"){
-          addBettyBubble("Modalità Gol/NoGol attiva ✅ Chiedimi: 'Gol o NoGol?' e ti rispondo con motivazione.");
-        } else if (btn.dataset.mode === "SPREADS"){
-          addBettyBubble("Modalità Handicap attiva ✅ Scegli il punto e chiedimi: 'Home o Away?'");
-        } else {
-          addBettyBubble("Modalità Analisi attiva. Fammi una domanda libera.");
-        }
+        addBettyBubble(
+          btn.dataset.mode === "TOTALS" ? "Modalità Under/Over attiva. Vuoi una linea specifica? (2.5 / 3.5)"
+          : btn.dataset.mode === "BTTS" ? "Modalità Gol/NoGol attiva. Ti rispondo usando trend gol e contesto."
+          : btn.dataset.mode === "EXACT" ? "Modalità Risultato Esatto attiva. Ti propongo 1–2 score motivati dal contesto."
+          : btn.dataset.mode === "SCORER" ? "Modalità Marcatore attiva. Ti propongo 1–3 nomi SOLO se disponibili nel contesto."
+          : "Modalità Analisi attiva. Fammi una domanda libera."
+        );
       });
     });
 
     $.sendBtn.addEventListener("click", async ()=>{
-      const raw = $.chatInput.value.trim();
-      if (!raw) return;
+      const t = $.chatInput.value.trim();
+      if (!t) return;
       $.chatInput.value = "";
 
-      const t = buildModeUserText(raw);
-
-      addUserBubble(raw);
-      chatHistory.push({ role:"user", content: raw });
+      addUserBubble(t);
+      chatHistory.push({ role:"user", content: t });
 
       const th = addThinking();
       const ans = await askBetty(t);
@@ -1154,7 +911,6 @@
     $.overlay.addEventListener("click", (e)=>{ if (e.target === $.overlay) closeModal(); });
     document.addEventListener("keydown", (e)=>{ if (e.key === "Escape" && $.overlay.classList.contains("show")) closeModal(); });
 
-    /* ===== INIT ===== */
     load();
   </script>
 </body>
