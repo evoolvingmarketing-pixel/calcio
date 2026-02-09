@@ -45,6 +45,19 @@
       color:#111827;
     }
     .btnPrimary:hover{ box-shadow:0 16px 40px rgba(245,158,11,.22); }
+    .btnGhost{
+      border-radius:999px;
+      padding:8px 12px;
+      font-weight:900;
+      font-size:12px;
+      border:1px solid var(--border);
+      background:#fff;
+      color:#0f172a;
+    }
+    .btnGhost.active{
+      border-color: rgba(245,158,11,.50);
+      background: #fff7ed;
+    }
     .input{
       width:100%;
       border-radius:14px;
@@ -170,6 +183,7 @@
       gap:8px;
       padding:10px 14px 0 14px;
       flex-wrap:wrap;
+      align-items:center;
     }
     .tabBtn{
       border-radius:999px;
@@ -185,6 +199,21 @@
       background: #fff7ed;
     }
     .tabBtn.hidden{ display:none !important; }
+
+    .subBar{
+      padding:10px 14px 0 14px;
+      display:none;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .subBar.show{ display:flex; }
+    .subLabel{
+      font-size:12px;
+      font-weight:900;
+      color:#0f172a;
+      margin-right:2px;
+    }
 
     .modalFooter{
       border-top:1px solid var(--border);
@@ -296,6 +325,7 @@
           <span class="chip" id="chipMode">modalità: live</span>
           <span class="chip">stile: light premium</span>
           <span class="chip">AI: Betty 🧙‍♀️</span>
+          <span class="chip" id="chipMarkets">markets: —</span>
           <span class="chip" id="chipContext">context: —</span>
         </div>
       </div>
@@ -338,8 +368,15 @@
         <button class="tabBtn active" data-mode="OPEN" id="tabOPEN">Analisi</button>
         <button class="tabBtn" data-mode="TOTALS" id="tabTOTALS">Under/Over</button>
         <button class="tabBtn" data-mode="BTTS" id="tabBTTS">Gol/NoGol</button>
+        <button class="tabBtn" data-mode="SPREADS" id="tabSPREADS">Handicap</button>
         <button class="tabBtn" data-mode="EXACT" id="tabEXACT">Risultato Esatto</button>
         <button class="tabBtn" data-mode="SCORER" id="tabSCORER">Marcatore</button>
+      </div>
+
+      <!-- sub-controls (linee totals / spreads) -->
+      <div id="subBar" class="subBar">
+        <span id="subLabel" class="subLabel"></span>
+        <div id="subChoices" class="flex gap-2 flex-wrap"></div>
       </div>
 
       <div class="modalBody">
@@ -359,7 +396,7 @@
     const SERVICE_BASE     = "https://get-odds-299332443653.europe-west8.run.app";
     const BETTY_CHAT_URL   = "https://betty-chat-299332443653.europe-west8.run.app";
 
-    // ✅ IL TUO FOOTBALL-HUB (per classifica/forma/indisponibili/marcatori)
+    // ✅ FOOTBALL-HUB (classifica/forma/indisponibili/marcatori)
     const FOOTBALL_HUB_BASE = "https://football-hub-299332443653.europe-west8.run.app";
 
     const MAX_COUNT = 100;
@@ -378,9 +415,12 @@
           { name:"Away", prob: 25.5, odds: null },
         ],
         totals: [
-          { point: 2.5, outcomes:[ {name:"Over", prob:52.0, odds:null}, {name:"Under", prob:48.0, odds:null} ] }
+          { point: 2.5, outcomes:[ {name:"Over", prob:52.0, odds:null}, {name:"Under", prob:48.0, odds:null} ], overround:null }
         ],
-        btts: { outcomes:[ {name:"Yes", prob:55.0, odds:null}, {name:"No", prob:45.0, odds:null} ] }
+        btts: { outcomes:[ {name:"Yes", prob:55.0, odds:null}, {name:"No", prob:45.0, odds:null} ] },
+        spreads: [
+          { point: -0.5, outcomes:[ {name:"Home", prob:52.0, odds:null}, {name:"Away", prob:48.0, odds:null} ], overround:null }
+        ]
       });
       return [
         mk("demo_1","Arsenal","Liverpool",90),
@@ -406,6 +446,7 @@
       chipCount: el("chipCount"),
       chipMode: el("chipMode"),
       chipContext: el("chipContext"),
+      chipMarkets: el("chipMarkets"),
 
       sport: el("sport"),
       sportCustom: el("sportCustom"),
@@ -424,8 +465,13 @@
       tabOPEN: el("tabOPEN"),
       tabTOTALS: el("tabTOTALS"),
       tabBTTS: el("tabBTTS"),
+      tabSPREADS: el("tabSPREADS"),
       tabEXACT: el("tabEXACT"),
       tabSCORER: el("tabSCORER"),
+
+      subBar: el("subBar"),
+      subLabel: el("subLabel"),
+      subChoices: el("subChoices"),
 
       mhHomeLogo: el("mhHomeLogo"),
       mhAwayLogo: el("mhAwayLogo"),
@@ -439,6 +485,10 @@
     let currentMode = "OPEN";
     let chatHistory = [];
     let isDemoMode = false;
+
+    // selection for totals/spreads
+    let selectedTotalPoint = null;  // number
+    let selectedSpreadPoint = null; // number
 
     // context fetched from football-hub
     let currentContextBundle = null; // { resolve, context, fixture_id }
@@ -495,7 +545,6 @@
     }
 
     function setLogoNode(node, teamName, logoUrl){
-      // reset
       node.classList.remove("fallback");
       node.innerHTML = "";
 
@@ -511,12 +560,33 @@
       img.loading = "lazy";
       img.referrerPolicy = "no-referrer";
       img.onerror = () => {
-        // se è rotta → fallback lettera
         node.innerHTML = "";
         node.classList.add("fallback");
         node.textContent = (teamName||"?").slice(0,1).toUpperCase();
       };
       node.appendChild(img);
+    }
+
+    function hasMarket(ev, key){
+      if (!ev) return false;
+      if (key === "h2h") return Array.isArray(ev.outcomes) && ev.outcomes.length > 0;
+      if (key === "totals") return Array.isArray(ev.totals) && ev.totals.length > 0;
+      if (key === "btts") return !!(ev.btts && Array.isArray(ev.btts.outcomes) && ev.btts.outcomes.length > 0);
+      if (key === "spreads") return Array.isArray(ev.spreads) && ev.spreads.length > 0;
+      if (key === "exact") return Array.isArray(ev.exact) && ev.exact.length > 0;
+      if (key === "scorer") return Array.isArray(ev.scorers) && ev.scorers.length > 0;
+      return false;
+    }
+
+    function marketsForSport(sportKey){
+      // Calcio: h2h + totals + btts + spreads
+      if (isSoccerSportKey(sportKey)) return ["h2h","totals","btts","spreads"];
+      // Basket: spesso h2h + spreads + totals (btts no)
+      if (/^basketball_/i.test(sportKey)) return ["h2h","totals","spreads"];
+      // Tennis: h2h (e totals/spreads non sempre utili)
+      if (/^tennis_/i.test(sportKey)) return ["h2h"];
+      // default safe
+      return ["h2h","totals"];
     }
 
     /* ===== API (Odds list) ===== */
@@ -528,7 +598,9 @@
       url.searchParams.set("regions", regions);
       url.searchParams.set("live", "false");
       url.searchParams.set("count", String(MAX_COUNT));
-      url.searchParams.set("markets", "h2h,totals,btts");
+      const mk = marketsForSport(sport);
+      url.searchParams.set("markets", mk.join(","));
+
       const r = await fetch(url, { headers:{ "Accept":"application/json" }});
       return r.json();
     }
@@ -563,14 +635,12 @@
 
       if (contextCache.has(key)) return contextCache.get(key);
 
-      // demo mode => niente hub
       if (isDemoMode){
         const bundle = { ok:false, reason:"demo", resolve:null, context:null, fixture_id:null };
         contextCache.set(key, bundle);
         return bundle;
       }
 
-      // 1) resolve -> fixture id + logos
       const res = await hubResolve(home, away, dateStr);
       if (!res?.ok || !res?.found || !res?.resolved?.fixture_id){
         const bundle = { ok:false, reason:"resolve_failed", resolve:res || null, context:null, fixture_id:null };
@@ -579,9 +649,8 @@
       }
 
       const fixtureId = res.resolved.fixture_id;
-
-      // 2) context -> standings/form/injuries/topscorers/h2h
       const ctx = await hubContext(fixtureId);
+
       const bundle = {
         ok: !!ctx?.ok,
         reason: ctx?.ok ? "ok" : "context_failed",
@@ -598,6 +667,7 @@
     async function load(){
       $.status.textContent = "stato: carico…";
       $.chipContext.textContent = "context: —";
+      $.chipMarkets.textContent = "markets: —";
       hideNotice();
 
       try{
@@ -614,6 +684,7 @@
           lastData = buildDemoEvents();
           $.status.textContent = "stato: demo";
           $.chipCount.textContent = `match: ${lastData.length || 0}`;
+          $.chipMarkets.textContent = `markets: demo`;
           renderCards(lastData);
           return;
         }
@@ -622,6 +693,7 @@
 
         lastData = data.events || [];
         $.chipCount.textContent = `match: ${lastData.length || 0}`;
+        $.chipMarkets.textContent = `markets: ${data?.markets || "—"}`;
 
         if (!lastData.length){
           $.cards.innerHTML = emptyState("Nessun match trovato. Cambia sport o riprova.");
@@ -637,6 +709,7 @@
         showNotice("⚠️ Problema di rete/backend. Modalità DEMO attiva.");
         lastData = buildDemoEvents();
         $.chipCount.textContent = `match: ${lastData.length || 0}`;
+        $.chipMarkets.textContent = `markets: demo`;
         renderCards(lastData);
         $.status.textContent = "stato: demo";
       }
@@ -651,11 +724,17 @@
       const pick = bestOutcome(ev.outcomes || []);
       const when = fmtDate(ev.commence_time);
 
-      // logos: da hub li prenderemo al click (no chiamate extra qui). Intanto fallback con iniziali.
       const h = esc(ev.home_team||"");
       const a = esc(ev.away_team||"");
       const hInitial = esc((ev.home_team||"H").slice(0,1).toUpperCase());
       const aInitial = esc((ev.away_team||"A").slice(0,1).toUpperCase());
+
+      // chips market availability
+      const chips = [];
+      if (hasMarket(ev,"h2h")) chips.push(`<span class="chip">1X2</span>`);
+      if (hasMarket(ev,"totals")) chips.push(`<span class="chip">U/O</span>`);
+      if (hasMarket(ev,"btts")) chips.push(`<span class="chip">BTTS</span>`);
+      if (hasMarket(ev,"spreads")) chips.push(`<span class="chip">AH</span>`);
 
       return `
         <article class="bg-white rounded-2xl border p-4 md:p-5 cardShadow" style="border-color:var(--border);">
@@ -680,8 +759,10 @@
           <div class="mt-3 text-sm text-slate-700">
             <span class="font-extrabold text-slate-900">Previsione (rapida):</span>
             ${pick ? `${esc(toItOutcome(pick.name))}` : "—"}
-            <div class="text-xs text-slate-500 mt-1">(Niente quote qui: solo lettura e spiegazione.)</div>
+            <div class="text-xs text-slate-500 mt-1">(Niente “gioca X”: solo lettura e spiegazione.)</div>
           </div>
+
+          <div class="mt-3 flex flex-wrap gap-2">${chips.join("")}</div>
 
           <div class="mt-4 flex items-center justify-end">
             <button class="btn btnPrimary"
@@ -712,6 +793,7 @@
         if (b.classList.contains("hidden")) return;
         b.classList.toggle("active", b.dataset.mode === mode);
       });
+      renderSubControls(); // refresh sub controls when mode changes
     }
 
     function addUserBubble(text){
@@ -766,40 +848,112 @@
       if (n) n.remove();
     }
 
-    function setTabsForSport(sportKey){
+    function setTabsForEvent(ev){
+      const sportKey = chosenSport();
       const soccer = isSoccerSportKey(sportKey);
-      // calcio: tutto
-      $.tabBTTS.classList.toggle("hidden", !soccer);
-      $.tabEXACT.classList.toggle("hidden", !soccer);
-      $.tabSCORER.classList.toggle("hidden", !soccer);
 
-      // Under/Over ha senso quasi sempre: lo lasciamo visibile
-      $.tabTOTALS.classList.remove("hidden");
+      // show/hide based on REAL data in the match
+      $.tabTOTALS.classList.toggle("hidden", !hasMarket(ev,"totals"));
+      $.tabBTTS.classList.toggle("hidden", !soccer || !hasMarket(ev,"btts"));
+      $.tabSPREADS.classList.toggle("hidden", !hasMarket(ev,"spreads"));
 
-      // se il tab attivo è nascosto, torna a OPEN
+      // these are not implemented via get-odds right now -> hide unless someday present
+      $.tabEXACT.classList.toggle("hidden", !hasMarket(ev,"exact"));
+      $.tabSCORER.classList.toggle("hidden", !hasMarket(ev,"scorer"));
+
+      // if current mode now hidden -> fallback to OPEN
       const active = $.tabBtns.find(b=>b.classList.contains("active"));
-      if (active && active.classList.contains("hidden")){
-        setMode("OPEN");
-      }
+      if (active && active.classList.contains("hidden")) setMode("OPEN");
     }
+
+    function getAvailableTotalsPoints(ev){
+      const pts = (ev?.totals || []).map(x => x?.point).filter(x => typeof x === "number" && isFinite(x));
+      return Array.from(new Set(pts)).sort((a,b)=>a-b);
+    }
+
+    function getAvailableSpreadsPoints(ev){
+      const pts = (ev?.spreads || []).map(x => x?.point).filter(x => typeof x === "number" && isFinite(x));
+      return Array.from(new Set(pts)).sort((a,b)=>a-b);
+    }
+
+    function renderSubControls(){
+      if (!currentEvent){
+        $.subBar.classList.remove("show");
+        $.subChoices.innerHTML = "";
+        return;
+      }
+
+      // totals line chooser
+      if (currentMode === "TOTALS" && hasMarket(currentEvent,"totals")){
+        const pts = getAvailableTotalsPoints(currentEvent);
+        if (!pts.length){
+          $.subBar.classList.remove("show");
+          return;
+        }
+        if (selectedTotalPoint === null) selectedTotalPoint = pts.includes(2.5) ? 2.5 : pts[0];
+
+        $.subLabel.textContent = "Linea:";
+        $.subChoices.innerHTML = pts.map(p => `
+          <button class="btnGhost ${p===selectedTotalPoint ? "active":""}" onclick="selectTotalPoint(${p})">
+            ${p}
+          </button>
+        `).join("");
+
+        $.subBar.classList.add("show");
+        return;
+      }
+
+      // spreads point chooser
+      if (currentMode === "SPREADS" && hasMarket(currentEvent,"spreads")){
+        const pts = getAvailableSpreadsPoints(currentEvent);
+        if (!pts.length){
+          $.subBar.classList.remove("show");
+          return;
+        }
+        if (selectedSpreadPoint === null) selectedSpreadPoint = pts[0];
+
+        $.subLabel.textContent = "Handicap:";
+        $.subChoices.innerHTML = pts.map(p => `
+          <button class="btnGhost ${p===selectedSpreadPoint ? "active":""}" onclick="selectSpreadPoint(${p})">
+            ${p > 0 ? "+"+p : p}
+          </button>
+        `).join("");
+
+        $.subBar.classList.add("show");
+        return;
+      }
+
+      // other modes: hide sub bar
+      $.subBar.classList.remove("show");
+      $.subChoices.innerHTML = "";
+    }
+
+    window.selectTotalPoint = function(p){
+      selectedTotalPoint = Number(p);
+      renderSubControls();
+      addBettyBubble(`Ok ✅ Under/Over sulla linea ${selectedTotalPoint}. Se vuoi: "spiegami perché" oppure "Over o Under?"`);
+    };
+
+    window.selectSpreadPoint = function(p){
+      selectedSpreadPoint = Number(p);
+      renderSubControls();
+      addBettyBubble(`Ok ✅ Handicap ${selectedSpreadPoint > 0 ? "+"+selectedSpreadPoint : selectedSpreadPoint}. Se vuoi: "che lato ha senso?"`);
+    };
 
     /* ===== BETTY CALL ===== */
     function buildAntiHallucinationPrompt(userText, mode, bundle){
-      // Istruzioni “hard” in prompt (senza toccare backend)
       const hasCtx = !!(bundle && bundle.ok && bundle.context);
       const ctxNote = hasCtx
         ? "Hai un CONTEXTO dati (classifica/forma/infortuni/marcatori/h2h). Usalo."
         : "NON hai contesto: NON inventare dati (classifica, forma, indisponibili, marcatori). Dì chiaramente che mancano.";
 
       const modeRule =
-        mode === "SCORER"
-          ? "Se modalità MARCATORE: proponi 1–3 nomi SOLO se presenti in topscorers/lineups/roster nel contesto. Se non ci sono, chiedi la conferma della formazione o dici che mancano i dati."
-        : mode === "EXACT"
-          ? "Se modalità RISULTATO ESATTO: proponi 1–2 score coerenti usando forma (ultimi risultati), h2h, e trend gol; cita cosa nel contesto ti porta lì. Se mancano dati, dillo e fai una lettura prudente senza numeri inventati."
+        mode === "TOTALS"
+          ? "Se modalità UNDER/OVER: usa trend gol e la linea selezionata. Se la linea non è specificata, chiedila."
         : mode === "BTTS"
-          ? "Se modalità GOL/NOGOL: usa trend gol fatti/subiti e totals/btts se presenti nel contesto; altrimenti dichiara che mancano i dati."
-        : mode === "TOTALS"
-          ? "Se modalità UNDER/OVER: usa trend gol e la linea richiesta; se manca, chiedi quale linea (2.5/3.5)."
+          ? "Se modalità GOL/NOGOL (BTTS): usa trend gol fatti/subiti e contesto. Se mancano dati, dichiaralo."
+        : mode === "SPREADS"
+          ? "Se modalità HANDICAP: usa differenza valori (forma, matchup), ma senza inventare dati. Se manca contesto, fai lettura prudente."
         : "Analisi: sintetica ma motivata. Se un dato non c’è nel contesto, non inventarlo.";
 
       return [
@@ -816,6 +970,21 @@
       ].join("\n");
     }
 
+    function buildModeUserText(rawUserText){
+      // arricchiamo la domanda con la linea selezionata quando serve
+      if (currentMode === "TOTALS"){
+        const line = selectedTotalPoint;
+        const prefix = (typeof line === "number") ? `LINE=${line} ` : "";
+        return prefix + (rawUserText || "");
+      }
+      if (currentMode === "SPREADS"){
+        const line = selectedSpreadPoint;
+        const prefix = (typeof line === "number") ? `HANDICAP_POINT=${line} ` : "";
+        return prefix + (rawUserText || "");
+      }
+      return rawUserText || "";
+    }
+
     async function askBetty(userText){
       if (!currentEvent){
         addBettyBubble("Seleziona prima un match 😊");
@@ -828,12 +997,16 @@
         mode: currentMode,
         prompt: buildAntiHallucinationPrompt(userText || "", currentMode, currentContextBundle),
         event: currentEvent,
-        // ✅ QUI PRIMA ERA NULL: ora passiamo il contesto vero
         context: (currentContextBundle && currentContextBundle.ok) ? currentContextBundle.context : null,
         resolve: (currentContextBundle && currentContextBundle.resolve) ? currentContextBundle.resolve : null,
         history: chatHistory.slice(-10),
         demo: isDemoMode,
-        sport: sportKey
+        sport: sportKey,
+        // extra hints for backend (if you want to use them later)
+        selections: {
+          totals_point: selectedTotalPoint,
+          spreads_point: selectedSpreadPoint
+        }
       };
 
       try{
@@ -852,15 +1025,13 @@
         if (!text) throw new Error("Risposta vuota");
         return text;
       }catch(e){
-        // fallback demo senza backend
         const pick = bestOutcome(currentEvent?.outcomes || []);
         const base = pick ? `Lettura rapida: scenario più probabile **${toItOutcome(pick.name)}**.` : "Lettura rapida disponibile.";
         const modeHint =
-          (currentMode === "TOTALS") ? "Under/Over: dimmi la linea (2.5 / 3.5) e azzardo lo scenario."
+          (currentMode === "TOTALS") ? `Under/Over: linea ${selectedTotalPoint ?? "?"}. Dimmi 'Over o Under?' e ti rispondo.`
         : (currentMode === "BTTS") ? "Gol/NoGol: ti dico quale sembra più coerente coi ritmi."
-        : (currentMode === "EXACT") ? "Risultato esatto: posso azzardare 1–2 score realistici (solo gioco)."
-        : (currentMode === "SCORER") ? "Marcatore: posso azzardare 1–2 profili (punta/ala) ma servono i nomi."
-        : "Chiedimi: forma, ritmo, fasi, cosa aspettarti nel match.";
+        : (currentMode === "SPREADS") ? `Handicap: punto ${selectedSpreadPoint ?? "?"}. Dimmi 'Home o Away?' e ti rispondo.`
+        : "Chiedimi: ritmo, fasi del match, cosa aspettarti.";
         return `${base}\n${modeHint}\n\n(Modalità fallback: non ho contesto completo.)`;
       }
     }
@@ -871,8 +1042,12 @@
       chatHistory = [];
       currentContextBundle = null;
 
-      const sportKey = chosenSport();
-      setTabsForSport(sportKey);
+      // reset selections
+      selectedTotalPoint = null;
+      selectedSpreadPoint = null;
+
+      // set tabs visibility based on match data
+      setTabsForEvent(ev);
 
       // header match
       $.chatTitle.textContent = `${ev.home_team} vs ${ev.away_team}`;
@@ -900,7 +1075,6 @@
           $.chipContext.textContent = "context: ok";
           addBettyBubble("Perfetto ✅ Contesto agganciato. Ora posso ragionare su dati reali.");
 
-          // loghi corretti da resolve, se presenti
           const hLogo = bundle?.resolve?.resolved?.home_logo || bundle?.resolve?.resolved?.home?.logo;
           const aLogo = bundle?.resolve?.resolved?.away_logo || bundle?.resolve?.resolved?.away?.logo;
           setLogoNode($.mhHomeLogo, ev.home_team, hLogo || null);
@@ -939,23 +1113,27 @@
 
         setMode(btn.dataset.mode);
 
-        addBettyBubble(
-          btn.dataset.mode === "TOTALS" ? "Modalità Under/Over attiva. Vuoi una linea specifica? (2.5 / 3.5)"
-          : btn.dataset.mode === "BTTS" ? "Modalità Gol/NoGol attiva. Ti rispondo usando trend gol e contesto."
-          : btn.dataset.mode === "EXACT" ? "Modalità Risultato Esatto attiva. Ti propongo 1–2 score motivati dal contesto."
-          : btn.dataset.mode === "SCORER" ? "Modalità Marcatore attiva. Ti propongo 1–3 nomi SOLO se disponibili nel contesto."
-          : "Modalità Analisi attiva. Fammi una domanda libera."
-        );
+        if (btn.dataset.mode === "TOTALS"){
+          addBettyBubble("Modalità Under/Over attiva ✅ Scegli la linea qui sopra e poi chiedimi: 'Over o Under?'");
+        } else if (btn.dataset.mode === "BTTS"){
+          addBettyBubble("Modalità Gol/NoGol attiva ✅ Chiedimi: 'Gol o NoGol?' e ti rispondo con motivazione.");
+        } else if (btn.dataset.mode === "SPREADS"){
+          addBettyBubble("Modalità Handicap attiva ✅ Scegli il punto e chiedimi: 'Home o Away?'");
+        } else {
+          addBettyBubble("Modalità Analisi attiva. Fammi una domanda libera.");
+        }
       });
     });
 
     $.sendBtn.addEventListener("click", async ()=>{
-      const t = $.chatInput.value.trim();
-      if (!t) return;
+      const raw = $.chatInput.value.trim();
+      if (!raw) return;
       $.chatInput.value = "";
 
-      addUserBubble(t);
-      chatHistory.push({ role:"user", content: t });
+      const t = buildModeUserText(raw);
+
+      addUserBubble(raw);
+      chatHistory.push({ role:"user", content: raw });
 
       const th = addThinking();
       const ans = await askBetty(t);
